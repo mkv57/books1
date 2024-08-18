@@ -57,10 +57,11 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	}
 	var newBook Book
 	err = json.Unmarshal(jsong, &newBook)
-	if err != nil {
+	if err != nil || newBook.Title == "" || newBook.Authors[0] == "" || newBook.Year == 0 {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
+
 	newBook.Id = len(Books) + 1 // формируем новый идентификатор
 	Books[len(Books)+1] = newBook
 	data, err := json.Marshal(newBook)
