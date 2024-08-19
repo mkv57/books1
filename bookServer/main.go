@@ -58,11 +58,21 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	}
 	var newBook Book
 	err = json.Unmarshal(jsong, &newBook)
-	if err != nil || newBook.Title == "" || newBook.Authors[0] == "" || newBook.Year == 0 {
+	if err != nil {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
+	if newBook.Title == "" || newBook.Authors[0] == "" || newBook.Year == 0 {
+		//if len(newBook.Title) == 0 || len(newBook.Authors[0]) == 0 || newBook.Year == 0 {    Какой вариант правельный или лучше?
 
+		data, err := json.Marshal("заполнены не все поля")
+		if err != nil {
+			handleError(w, http.StatusInternalServerError, err)
+			return
+		}
+		w.Write(data)
+		return
+	}
 	newBook.Id = len(Books) + 1 // формируем новый идентификатор
 	Books[len(Books)+1] = newBook
 	data, err := json.Marshal(newBook)
