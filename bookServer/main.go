@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -74,12 +75,44 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 
 func AllBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	data, err := json.Marshal(Books)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError, err)
+
+	query := r.URL.Query()
+	limit := query.Get("limit")
+
+	if limit == "" {
+
+		data, err := json.Marshal(Books)
+		if err != nil {
+			handleError(w, http.StatusInternalServerError, err)
+			return
+		}
+		w.Write(data)
 		return
 	}
-	w.Write(data)
+
+	if limit != "" {
+		limitNum, err := strconv.Atoi(limit)
+		if err != nil {
+			handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
+			return
+		}
+
+		//Проверяем, если параметр limit больше количества книг, то устанавливаем его равным количеству книг
+		if limitNum > len(Books) {
+			limitNum = len(Books)
+		}
+
+		for i := 1; i <= limitNum; i++ {
+			data, err := json.Marshal(Books[i])
+			if err != nil {
+				handleError(w, http.StatusInternalServerError, err)
+
+			}
+			w.Write(data)
+
+		}
+		return
+	}
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
