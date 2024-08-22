@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -80,6 +82,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	w.Write(data)
 }
 
@@ -96,7 +99,9 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 			handleError(w, http.StatusInternalServerError, err)
 			return
 		}
+
 		w.Write(data)
+		logger.Info("отправлен ответ")
 		return
 	}
 
@@ -119,10 +124,11 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 
 			}
 			w.Write(data)
-
+			logger.Info("отправлен ответ")
 		}
 		return
 	}
+
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
@@ -153,18 +159,50 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+var minimalLevel = slog.LevelInfo
+
+var file, err = os.OpenFile("app.log", os.O_APPEND, 0666)
+
+var logger = slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{
+	Level: minimalLevel,
+}))
+
+//file, err := os.OpenFile("hello.txt", os.O_APPEND, 0666)
+
 func main() {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	/*file, err := os.OpenFile("app.log", os.O_APPEND, 0666)
+	var logger = slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{
+		Level: minimalLevel,
+	}))
+
+	//file, err := os.OpenFile("hello.txt", os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}*/
+	defer file.Close()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/book", GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/book", AddBook).Methods(http.MethodPost)
 	r.HandleFunc("/book", DeleteBook).Methods(http.MethodDelete)
 	r.HandleFunc("/book", UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", AllBooks).Methods(http.MethodGet)
-	err := http.ListenAndServe("127.0.0.1:8080", r)
-	if err != nil {
+
+	logger.Info("сервер запущен")
+	err1 := http.ListenAndServe("127.0.0.1:8080", r)
+	logger.Info("сервер отключён")
+	if err1 != nil {
+		logger.Error("сервер на запустился")
 		log.Fatal(err)
 	}
+
 }
+
 func handleError(w http.ResponseWriter, status int, err error) {
 	result := map[string]interface{}{
 		"error":  err.Error(),
