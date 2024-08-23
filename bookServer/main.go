@@ -5,30 +5,41 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"os"
-
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
-var minimalLevel = slog.LevelInfo
+//var minimalLevel1 = slog.LevelInfo
 
-var file, err = os.OpenFile("app.log", os.O_APPEND, 0666)
-
-var logger = slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{
-	Level: minimalLevel,
-}))
+//var logger1 = slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{
+//	Level: minimalLevel1,
+//}))
 
 func main() {
+
+	file, err := os.OpenFile("app.log", os.O_APPEND, 0666)
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 	defer file.Close()
 
 	r := mux.NewRouter()
+
+	minimalLevel := slog.LevelInfo
+	// Создаем новый логгер, который будет писать в стандартный вывод
+	options := &slog.HandlerOptions{
+		Level: minimalLevel,
+	}
+	handler := slog.NewTextHandler(file, options)
+	logger := slog.New(handler)
+
+	r.Use(Logging(logger))
+
 	r.HandleFunc("/book", struct_p.GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/book", struct_p.AddBook).Methods(http.MethodPost)
 	r.HandleFunc("/book", struct_p.DeleteBook).Methods(http.MethodDelete)
@@ -37,11 +48,25 @@ func main() {
 
 	logger.Info("сервер запущен")
 	fmt.Println("сервер запущен")
-	err1 := http.ListenAndServe("127.0.0.1:8080", r)
+	err = http.ListenAndServe("127.0.0.1:8080", r)
 	logger.Info("сервер отключён")
-	if err1 != nil {
+	if err != nil {
 		logger.Error("сервер на запустился")
 		log.Fatal(err)
 	}
 
+}
+
+func Logging(logger *slog.Logger) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			starter := time.Now()
+			logger.Info("Request",
+				slog.String("uri", r.RequestURI),
+				slog.String("remote_addr", r.RemoteAddr),
+			)
+			next.ServeHTTP(w, r)
+			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
+		})
+	}
 }

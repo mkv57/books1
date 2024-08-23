@@ -1,26 +1,13 @@
-time=2024-08-22T17:08:33.510+03:00 level=INFO msg="сервер запущен"
-time=2024-08-22T17:52:26.706+03:00 level=INFO msg="сервер запущен"
-time=2024-08-22T17:56:30.410+03:00 level=INFO msg="сервер запущен"
-time=2024-08-22T17:56:35.493+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-22T17:56:48.066+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-22T17:56:56.533+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-22T17:57:14.883+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T09:02:46.493+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T09:22:47.318+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T10:41:36.934+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T10:42:42.177+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:43:49.979+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:44:01.873+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:44:42.309+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:44:52.774+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:03.245+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:13.155+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:23.306+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:40.658+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:40.659+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:45:40.659+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:46:13.667+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T10:48:51.401+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T10:49:51.561+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T11:01:03.766+03:00 level=INFO msg="сервер запущен"
-time=2024-08-23T11:01:53.957+03:00 level=INFO msg="сервер запущен"
+time=2024-08-23T11:42:03.941+03:00 level=INFO msg="сервер запущен"
+time=2024-08-23T11:42:49.069+03:00 level=INFO msg=Request uri=/book remote_addr=127.0.0.1:20874
+time=2024-08-23T11:42:49.069+03:00 level=INFO msg="добавлена книга"
+time=2024-08-23T11:42:49.069+03:00 level=INFO msg=Finished duration=525.8µs
+time=2024-08-23T11:42:52.420+03:00 level=INFO msg=Request uri=/book remote_addr=127.0.0.1:20874
+time=2024-08-23T11:42:52.432+03:00 level=INFO msg="добавлена книга"
+time=2024-08-23T11:42:52.433+03:00 level=INFO msg=Finished duration=12.3308ms
+time=2024-08-23T11:43:18.024+03:00 level=INFO msg=Request uri="/book?id=2" remote_addr=127.0.0.1:20874
+time=2024-08-23T11:43:18.024+03:00 level=INFO msg="удалена книга"
+time=2024-08-23T11:43:18.024+03:00 level=INFO msg=Finished duration=0s
+time=2024-08-23T11:43:29.610+03:00 level=INFO msg=Request uri=/books remote_addr=127.0.0.1:20874
+time=2024-08-23T11:43:29.616+03:00 level=INFO msg="отправлен ответ"
+time=2024-08-23T11:43:29.616+03:00 level=INFO msg=Finished duration=6.1029ms
