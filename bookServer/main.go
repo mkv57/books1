@@ -62,6 +62,7 @@ func main() {
 }
 
 func Logging(logger *slog.Logger) mux.MiddlewareFunc {
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			starter := time.Now()
@@ -72,13 +73,28 @@ func Logging(logger *slog.Logger) mux.MiddlewareFunc {
 	}
 }
 
-func Logging1(logger *slog.Logger) mux.MiddlewareFunc {
+func Logging1(logger1 *slog.Logger) mux.MiddlewareFunc {
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			starter := time.Now()
-			logger.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
+			if r.Method == "GET" {
+				logger1.Info("запрашиваем")
+			}
+			if r.Method == "PUT" {
+				logger1.Info("обнавляем")
+			}
+			if r.Method == "POST" {
+				logger1.Info("добавляем")
+			}
+			if r.Method == "DELETE" {
+				logger1.Info("удаляем")
+			}
+
+			//starter := time.Now()
+			//logger1.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
 			next.ServeHTTP(w, r)
-			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
+			//logger1.Info("Finished", slog.String("duration", time.Since(starter).String()))
 		})
+
 	}
 }
