@@ -35,7 +35,7 @@ func main() {
 	options := &slog.HandlerOptions{
 		Level: minimalLevel,
 	}
-	handler := slog.NewTextHandler(file, options)
+	handler := slog.NewTextHandler(os.Stdout, options)
 	logger := slog.New(handler)
 
 	r.Use(Logging(logger))
@@ -46,12 +46,12 @@ func main() {
 	r.HandleFunc("/book", struct_p.UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", struct_p.AllBooks).Methods(http.MethodGet)
 
-	logger.Info("сервер запущен")
+	logger.Warn("сервер запущен")
 	fmt.Println("сервер запущен")
 	err = http.ListenAndServe("127.0.0.1:8080", r)
-	logger.Info("сервер отключён")
+	logger.Warn("сервер отключён")
 	if err != nil {
-		logger.Error("сервер на запустился")
+		logger.Error("сервер нe запустился")
 		log.Fatal(err)
 	}
 
@@ -61,10 +61,7 @@ func Logging(logger *slog.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			starter := time.Now()
-			logger.Info("Request",
-				slog.String("uri", r.RequestURI),
-				slog.String("remote_addr", r.RemoteAddr),
-			)
+			logger.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
 			next.ServeHTTP(w, r)
 			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
 		})
