@@ -36,7 +36,6 @@ func main() {
 	logger1 := slog.New(handler1) // логи отправляю в файл
 
 	r.Use(Logging(logger))
-	r.Use(Logging1(logger))
 
 	r.HandleFunc("/book", struct_p.GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/book", struct_p.AddBook).Methods(http.MethodPost)
@@ -59,35 +58,11 @@ func Logging(logger *slog.Logger) mux.MiddlewareFunc {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger.Info(r.Method)
 			starter := time.Now()
 			logger.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
 			next.ServeHTTP(w, r)
 			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
 		})
-	}
-}
-
-func Logging1(logger1 *slog.Logger) mux.MiddlewareFunc {
-
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			//	fmt.Println(r.Body)
-			if r.Method == "GET" {
-				logger1.Info("запрашиваем")
-			}
-			if r.Method == "PUT" {
-				logger1.Info("обнавляем")
-			}
-			if r.Method == "POST" {
-				logger1.Info("добавляем")
-			}
-			if r.Method == "DELETE" {
-				logger1.Info("удаляем")
-			}
-
-			next.ServeHTTP(w, r)
-
-		})
-
 	}
 }
