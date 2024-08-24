@@ -12,12 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//var minimalLevel1 = slog.LevelInfo
-
-//var logger1 = slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{
-//	Level: minimalLevel1,
-//}))
-
 func main() {
 
 	file, err := os.OpenFile("app.log", os.O_APPEND, 0666)
@@ -36,10 +30,10 @@ func main() {
 		Level: minimalLevel,
 	}
 	handler := slog.NewTextHandler(os.Stdout, options)
-	logger := slog.New(handler)
+	logger := slog.New(handler) // логи отправляю в поток
 
 	handler1 := slog.NewTextHandler(file, options)
-	logger1 := slog.New(handler1)
+	logger1 := slog.New(handler1) // логи отправляю в файл
 
 	r.Use(Logging(logger))
 	r.Use(Logging1(logger))
@@ -77,6 +71,7 @@ func Logging1(logger1 *slog.Logger) mux.MiddlewareFunc {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			//	fmt.Println(r.Body)
 			if r.Method == "GET" {
 				logger1.Info("запрашиваем")
 			}
@@ -90,10 +85,8 @@ func Logging1(logger1 *slog.Logger) mux.MiddlewareFunc {
 				logger1.Info("удаляем")
 			}
 
-			//starter := time.Now()
-			//logger1.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
 			next.ServeHTTP(w, r)
-			//logger1.Info("Finished", slog.String("duration", time.Since(starter).String()))
+
 		})
 
 	}
