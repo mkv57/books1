@@ -12,6 +12,3 @@ var Books = map[int]domain.Book{
 		Year:    2016,
 	},
 }
-
-type Server struct {
-}

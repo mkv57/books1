@@ -11,6 +11,11 @@ import (
 	"strconv"
 )
 
+type server struct {
+	w http.ResponseWriter
+	r *http.Request
+}
+
 func GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
