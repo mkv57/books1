@@ -1,6 +1,8 @@
-package struct_p
+package api
 
 import (
+	"bookServer/internal/db"
+	"bookServer/internal/domain"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,7 +19,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	book, ok := Books[idint]
+	book, ok := db.Books[idint]
 	if !ok {
 		handleError(w, http.StatusNotFound, fmt.Errorf("book with id %d not found", idint))
 		return
@@ -37,7 +39,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
-	var newBook Book
+	var newBook domain.Book
 	err = json.Unmarshal(jsong, &newBook)
 	if err != nil {
 		handleError(w, http.StatusBadRequest, err)
@@ -54,8 +56,8 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 		return
 	}
-	newBook.Id = len(Books) + 1 // формируем новый идентификатор
-	Books[len(Books)+1] = newBook
+	newBook.Id = len(db.Books) + 1 // формируем новый идентификатор
+	db.Books[len(db.Books)+1] = newBook
 	data, err := json.Marshal(newBook)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
@@ -74,7 +76,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 
 	if limit == "" {
 
-		data, err := json.Marshal(Books)
+		data, err := json.Marshal(db.Books)
 		if err != nil {
 			handleError(w, http.StatusInternalServerError, err)
 			return
@@ -93,12 +95,12 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//Проверяем, если параметр limit больше количества книг, то устанавливаем его равным количеству книг
-		if limitNum > len(Books) {
-			limitNum = len(Books)
+		if limitNum > len(db.Books) {
+			limitNum = len(db.Books)
 		}
 
 		for i := 1; i <= limitNum; i++ {
-			data, err := json.Marshal(Books[i])
+			data, err := json.Marshal(db.Books[i])
 			if err != nil {
 				handleError(w, http.StatusInternalServerError, err)
 
@@ -118,13 +120,13 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
-	var book Book
+	var book domain.Book
 	err = json.Unmarshal(data, &book)
 	if err != nil {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	Books[book.Id] = book
+	db.Books[book.Id] = book
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +137,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	delete(Books, idint)
+	delete(db.Books, idint)
 	w.WriteHeader(http.StatusNoContent)
 	//logger.Info("удалена книга")
 }

@@ -1,4 +1,4 @@
-package struct_p
+package api
 
 import (
 	"log/slog"
@@ -23,9 +23,9 @@ func Logging(logger *slog.Logger) mux.MiddlewareFunc {
 			starter := time.Now()
 			logger.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
 			next.ServeHTTP(w, r)
-			n := r.ContentLength
-			f := r.Method
-			Body(n, f) // чтобы не делать ф-цию большой, создал и вызываю новую функцию
+			n := r.ContentLength // считываем из тела запроса кол-во байт, если 0 то тела нет
+			f := r.Method        // считываем из тела запроса метод
+			Body(n, f)           // чтобы не делать ф-цию большой, создал и вызываю новую функцию
 			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
 
 		})
@@ -47,8 +47,7 @@ func Body(c int64, r string) {
 
 	if c == 0 {
 		logger.Info("тело запроса отсутствует")
-	}
-	if c != 0 {
+	} else {
 		logger.Info("тело запроса есть")
 	}
 }

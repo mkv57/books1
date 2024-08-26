@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bookServer/struct_p"
+	"bookServer/internal/api"
 	"fmt"
 	"log"
 	"log/slog"
@@ -34,18 +34,18 @@ func main() {
 	handler1 := slog.NewTextHandler(file, options)
 	logger1 := slog.New(handler1) // логи отправляю в файл
 
-	r.Use(struct_p.Logging(logger))
+	r.Use(api.Logging(logger))
 
-	r.HandleFunc("/book", struct_p.GetBook).Methods(http.MethodGet)
-	r.HandleFunc("/book", struct_p.AddBook).Methods(http.MethodPost)
-	r.HandleFunc("/book", struct_p.DeleteBook).Methods(http.MethodDelete)
-	r.HandleFunc("/book", struct_p.UpdateBook).Methods(http.MethodPut)
-	r.HandleFunc("/books", struct_p.AllBooks).Methods(http.MethodGet)
+	r.HandleFunc("/book", api.GetBook).Methods(http.MethodGet)
+	r.HandleFunc("/book", api.AddBook).Methods(http.MethodPost)
+	r.HandleFunc("/book", api.DeleteBook).Methods(http.MethodDelete)
+	r.HandleFunc("/book", api.UpdateBook).Methods(http.MethodPut)
+	r.HandleFunc("/books", api.AllBooks).Methods(http.MethodGet)
 
-	logger1.Warn("сервер запущен")
+	logger.Warn("сервер запущен")
 	fmt.Println("сервер запущен")
 	err = http.ListenAndServe("127.0.0.1:8080", r)
-	logger.Warn("сервер отключён")
+	logger1.Warn("сервер отключён")
 	if err != nil {
 		logger.Error("сервер нe запустился")
 		log.Fatal(err)
