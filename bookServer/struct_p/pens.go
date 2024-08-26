@@ -137,7 +137,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	}
 	delete(Books, idint)
 	w.WriteHeader(http.StatusNoContent)
-	logger.Info("удалена книга")
+	//logger.Info("удалена книга")
 }
 
 func handleError(w http.ResponseWriter, status int, err error) {

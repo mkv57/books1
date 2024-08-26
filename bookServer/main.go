@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -35,7 +34,7 @@ func main() {
 	handler1 := slog.NewTextHandler(file, options)
 	logger1 := slog.New(handler1) // логи отправляю в файл
 
-	r.Use(Logging(logger))
+	r.Use(struct_p.Logging(logger))
 
 	r.HandleFunc("/book", struct_p.GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/book", struct_p.AddBook).Methods(http.MethodPost)
@@ -52,17 +51,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-
-func Logging(logger *slog.Logger) mux.MiddlewareFunc {
-
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logger.Info(r.Method)
-			starter := time.Now()
-			logger.Info("Request", slog.String("uri", r.RequestURI), slog.String("remote_addr", r.RemoteAddr))
-			next.ServeHTTP(w, r)
-			logger.Info("Finished", slog.String("duration", time.Since(starter).String()))
-		})
-	}
 }

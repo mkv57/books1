@@ -8,51 +8,7 @@ time=2024-08-23T11:42:52.433+03:00 level=INFO msg=Finished duration=12.3308ms
 time=2024-08-23T11:43:18.024+03:00 level=INFO msg=Request uri="/book?id=2" remote_addr=127.0.0.1:20874
 time=2024-08-23T11:43:18.024+03:00 level=INFO msg="удалена книга"
 time=2024-08-23T11:43:18.024+03:00 level=INFO msg=Finished duration=0s
-time=2024-08-23T11:43:29.610+03:00 level=INFO msg=Request uri=/books remote_addr=127.0.0.1:20874
-time=2024-08-23T11:43:29.616+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-23T11:43:29.616+03:00 level=INFO msg=Finished duration=6.1029ms
-time=2024-08-24T10:37:50.658+03:00 level=INFO msg="сервер запущен"
-time=2024-08-24T10:38:39.666+03:00 level=INFO msg=Request uri=/books remote_addr=127.0.0.1:55738
-time=2024-08-24T10:38:39.666+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T10:38:39.666+03:00 level=INFO msg=Finished duration=475.7µs
-time=2024-08-24T10:41:02.258+03:00 level=INFO msg="сервер запущен"
-time=2024-08-24T10:42:54.344+03:00 level=INFO msg=Request uri=/books remote_addr=127.0.0.1:55858
-time=2024-08-24T10:42:54.344+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T10:42:54.344+03:00 level=INFO msg=Finished duration=0s
-time=2024-08-24T10:44:53.951+03:00 level=INFO msg=Request uri=/books remote_addr=127.0.0.1:55918
-time=2024-08-24T10:44:53.951+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T10:44:53.951+03:00 level=INFO msg=Finished duration=531µs
-time=2024-08-24T10:45:26.005+03:00 level=INFO msg=Request uri=/book remote_addr=127.0.0.1:55918
-time=2024-08-24T10:45:26.006+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T10:45:26.006+03:00 level=INFO msg=Finished duration=968.9µs
-time=2024-08-24T10:45:52.284+03:00 level=INFO msg=Request uri=/book remote_addr=127.0.0.1:55918
-time=2024-08-24T10:45:52.284+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T10:45:52.284+03:00 level=INFO msg=Finished duration=277.6µs
-time=2024-08-24T10:49:01.472+03:00 level=INFO msg="сервер запущен"
-time=2024-08-24T10:50:19.261+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T10:50:39.301+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T10:50:51.780+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:10:57.855+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:11:43.709+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:17:56.456+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:19:29.029+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:25:25.631+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T11:54:50.686+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T11:55:14.469+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T14:53:44.075+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T14:57:28.349+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:02:38.533+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:11:24.470+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:12:53.758+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:13:01.334+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T15:13:10.951+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T15:20:54.112+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:21:13.604+03:00 level=INFO msg="отправлен ответ"
-time=2024-08-24T15:21:32.981+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T15:27:02.264+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:27:11.279+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T15:31:55.883+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:32:00.140+03:00 level=INFO msg="добавлена книга"
-time=2024-08-24T15:34:29.994+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:41:18.720+03:00 level=WARN msg="сервер запущен"
-time=2024-08-24T15:41:28.440+03:00 level=INFO msg="добавлена книга"
+time=2024-08-26T09:00:20.317+03:00 level=INFO msg="добавлена книга"
+time=2024-08-26T09:00:41.633+03:00 level=INFO msg="отправлен ответ"
+time=2024-08-26T09:00:58.382+03:00 level=INFO msg="отправлен ответ"
+time=2024-08-26T09:01:17.733+03:00 level=INFO msg="отправлен ответ"
