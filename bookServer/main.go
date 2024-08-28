@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -23,10 +24,10 @@ func main() {
 
 	r := mux.NewRouter()
 
-	minimalLevel := slog.LevelInfo
+	//minimalLevel := slog.LevelInfo
 	// Создаем новый логгер, который будет писать в стандартный вывод
 	options := &slog.HandlerOptions{
-		Level: minimalLevel,
+		Level: slog.LevelInfo,
 	}
 	handler := slog.NewTextHandler(os.Stdout, options)
 	logger := slog.New(handler) // логи отправляю в поток
@@ -36,11 +37,21 @@ func main() {
 
 	r.Use(api.Logging(logger))
 
-	r.HandleFunc("/book", api.GetBook).Methods(http.MethodGet)
-	r.HandleFunc("/book", api.AddBook).Methods(http.MethodPost)
-	r.HandleFunc("/book", api.DeleteBook).Methods(http.MethodDelete)
-	r.HandleFunc("/book", api.UpdateBook).Methods(http.MethodPut)
-	r.HandleFunc("/books", api.AllBooks).Methods(http.MethodGet)
+	var h = api.API{
+		Di: &http.Server{
+			//Addr:           ":8080",
+			//Handler:        r,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		},
+	}
+
+	r.HandleFunc("/book", h.GetBook).Methods(http.MethodGet)
+	r.HandleFunc("/book", h.AddBook).Methods(http.MethodPost)
+	r.HandleFunc("/book", h.DeleteBook).Methods(http.MethodDelete)
+	r.HandleFunc("/book", h.UpdateBook).Methods(http.MethodPut)
+	r.HandleFunc("/books", h.AllBooks).Methods(http.MethodGet)
 
 	logger.Warn("сервер запущен")
 	fmt.Println("сервер запущен")

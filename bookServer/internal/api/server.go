@@ -11,12 +11,11 @@ import (
 	"strconv"
 )
 
-type server struct {
-	w http.ResponseWriter
-	r *http.Request
+type API struct {
+	Di *http.Server `json:"di"`
 }
 
-func GetBook(w http.ResponseWriter, r *http.Request) {
+func (p API) GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -37,7 +36,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func AddBook(w http.ResponseWriter, r *http.Request) {
+func (p API) AddBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	jsong, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -73,7 +72,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	logger.Info("добавлена книга")
 }
 
-func AllBooks(w http.ResponseWriter, r *http.Request) {
+func (p API) AllBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
@@ -108,7 +107,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 			data, err := json.Marshal(db.Books[i])
 			if err != nil {
 				handleError(w, http.StatusInternalServerError, err)
-
+				return
 			}
 			w.Write(data)
 			logger.Info("отправлен ответ")
@@ -118,7 +117,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func UpdateBook(w http.ResponseWriter, r *http.Request) {
+func (p API) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -134,7 +133,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	db.Books[book.Id] = book
 }
 
-func DeleteBook(w http.ResponseWriter, r *http.Request) {
+func (p API) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -144,24 +143,5 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	}
 	delete(db.Books, idint)
 	w.WriteHeader(http.StatusNoContent)
-	//logger.Info("удалена книга")
-}
-
-func handleError(w http.ResponseWriter, status int, err error) {
-	result := map[string]interface{}{
-		"error":  err.Error(),
-		"status": http.StatusText(status),
-	}
-	data, err := json.Marshal(result)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
-		return
-	}
-	w.WriteHeader(status)
-	_, err = w.Write(data)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	logger.Info("удалена книга")
 }
