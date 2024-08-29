@@ -5,17 +5,16 @@ import (
 	"bookServer/internal/domain"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 )
 
-type API struct {
-	Di *http.Server `json:"di"`
+type Server struct {
+	Database db.Repository //`json:"database"`
 }
 
-func (p API) GetBook(w http.ResponseWriter, r *http.Request) {
+func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -23,11 +22,8 @@ func (p API) GetBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	book, ok := db.Books[idint]
-	if !ok {
-		handleError(w, http.StatusNotFound, fmt.Errorf("book with id %d not found", idint))
-		return
-	}
+	book := p.Database.GetBookFromDatabase(idint)
+
 	data, err := json.Marshal(book)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
@@ -36,7 +32,7 @@ func (p API) GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (p API) AddBook(w http.ResponseWriter, r *http.Request) {
+func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	jsong, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -49,30 +45,18 @@ func (p API) AddBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	if newBook.Title == "" || newBook.Authors[0] == "" || newBook.Year == 0 {
-		//if len(newBook.Title) == 0 || len(newBook.Authors[0]) == 0 || newBook.Year == 0 {    Какой вариант правельный или лучше?
 
-		data, err := json.Marshal("заполнены не все поля")
-		if err != nil {
-			handleError(w, http.StatusInternalServerError, err)
-			return
-		}
-		w.Write(data)
-		return
-	}
-	newBook.Id = len(db.Books) + 1 // формируем новый идентификатор
-	db.Books[len(db.Books)+1] = newBook
-	data, err := json.Marshal(newBook)
+	result := p.Database.SaveBookToDataBase(newBook)
+
+	data, err := json.Marshal(result)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
-
 	w.Write(data)
-	logger.Info("добавлена книга")
 }
 
-func (p API) AllBooks(w http.ResponseWriter, r *http.Request) {
+func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	query := r.URL.Query()
@@ -80,7 +64,7 @@ func (p API) AllBooks(w http.ResponseWriter, r *http.Request) {
 
 	if limit == "" {
 
-		data, err := json.Marshal(db.Books)
+		data, err := json.Marshal(p.Database.Store)
 		if err != nil {
 			handleError(w, http.StatusInternalServerError, err)
 			return
@@ -99,12 +83,12 @@ func (p API) AllBooks(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//Проверяем, если параметр limit больше количества книг, то устанавливаем его равным количеству книг
-		if limitNum > len(db.Books) {
-			limitNum = len(db.Books)
+		if limitNum > len(p.Database.Store) {
+			limitNum = len(p.Database.Store)
 		}
 
 		for i := 1; i <= limitNum; i++ {
-			data, err := json.Marshal(db.Books[i])
+			data, err := json.Marshal(p.Database.Store[i])
 			if err != nil {
 				handleError(w, http.StatusInternalServerError, err)
 				return
@@ -117,7 +101,7 @@ func (p API) AllBooks(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (p API) UpdateBook(w http.ResponseWriter, r *http.Request) {
+func (p Server) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -130,10 +114,10 @@ func (p API) UpdateBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	db.Books[book.Id] = book
+	p.Database.Store[book.Id] = book
 }
 
-func (p API) DeleteBook(w http.ResponseWriter, r *http.Request) {
+func (p Server) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -141,7 +125,7 @@ func (p API) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-	delete(db.Books, idint)
+	delete(p.Database.Store, idint)
 	w.WriteHeader(http.StatusNoContent)
 	logger.Info("удалена книга")
 }

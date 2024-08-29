@@ -2,12 +2,14 @@ package main
 
 import (
 	"bookServer/internal/api"
+	"bookServer/internal/db"
+	"bookServer/internal/domain"
+
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -37,21 +39,26 @@ func main() {
 
 	r.Use(api.Logging(logger))
 
-	var h = api.API{
-		Di: &http.Server{
+	/*var h = api.Server{
+		Di: http.Server{
 			//Addr:           ":8080",
 			//Handler:        r,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
-			MaxHeaderBytes: 1 << 20,
+			//ReadTimeout:    10 * time.Second,
+			//WriteTimeout:   10 * time.Second,
+			//MaxHeaderBytes: 1 << 20,
 		},
 	}
-
-	r.HandleFunc("/book", h.GetBook).Methods(http.MethodGet)
-	r.HandleFunc("/book", h.AddBook).Methods(http.MethodPost)
-	r.HandleFunc("/book", h.DeleteBook).Methods(http.MethodDelete)
-	r.HandleFunc("/book", h.UpdateBook).Methods(http.MethodPut)
-	r.HandleFunc("/books", h.AllBooks).Methods(http.MethodGet)
+	*/
+	ourServer := api.Server{
+		Database: db.Repository{
+			Store: make(map[int]domain.Book),
+		},
+	}
+	r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
+	r.HandleFunc("/book", ourServer.AddBook).Methods(http.MethodPost)
+	r.HandleFunc("/book", ourServer.DeleteBook).Methods(http.MethodDelete)
+	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
+	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
 	logger.Warn("сервер запущен")
 	fmt.Println("сервер запущен")
