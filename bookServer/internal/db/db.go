@@ -9,16 +9,6 @@ type Repository struct {
 	//storeFuture *sql.DB
 }
 
-/*var Books = map[int]domain.Book{
-	1: domain.Book{
-		Id:      1,
-		Title:   "Go на практике",
-		Authors: []string{"Мэтт Батчер", "Мэтт Фарина"},
-		Year:    2016,
-	},
-}
-*/
-
 func (d Repository) SaveBookToDataBase(book domain.Book) domain.Book {
 
 	id := len(d.Store) + 1
@@ -30,4 +20,18 @@ func (d Repository) SaveBookToDataBase(book domain.Book) domain.Book {
 
 func (d Repository) GetBookFromDatabase(id int) domain.Book {
 	return d.Store[id]
+}
+func (d Repository) GetAllBookFromDatabase() map[int]domain.Book {
+	return d.Store
+}
+func (d Repository) DeleteBookFromDatabase(id int) domain.Book {
+
+	delete(d.Store, id)
+	return d.Store[id]
+}
+func (d Repository) UpDateBookToDataBase(book domain.Book, id int) domain.Book {
+
+	d.Store[id] = book
+
+	return book
 }
