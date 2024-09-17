@@ -81,7 +81,6 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//Проверяем, если параметр limit больше количества книг, то устанавливаем его равным количеству книг
 		if limitNum > len(p.Database.Store) {
 			limitNum = len(p.Database.Store)
 		}
