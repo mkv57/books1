@@ -1,8 +1,12 @@
 package domain
 
+import (
+	"gorm.io/gorm"
+)
+
 type Book struct {
-	Id      int      `json:"id"`
-	Title   string   `json:"title"`
-	Authors []string `json:"authors"`
-	Year    int      `json:"year"`
+	gorm.Model
+	Title string `json:"title"`
+	//Authors []string `json:"authors"`
+	Year int `json:"year"`
 }

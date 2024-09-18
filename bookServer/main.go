@@ -1,6 +1,9 @@
 package main
 
 import (
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"bookServer/internal/api"
 	"bookServer/internal/db"
 	"bookServer/internal/domain"
@@ -23,14 +26,30 @@ func main() {
 	}
 	defer file.Close()
 
+	dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
+	config := postgres.Open(dsn)
+	gormDB, err := gorm.Open(config, &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	err = gormDB.AutoMigrate(&domain.Book{})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	r := mux.NewRouter()
+
+	repo := db.NewRepository(gormDB)
 
 	r.Use(api.Logging(api.Logger))
 
 	ourServer := api.Server{
-		Database: db.Repository{
-			Store: make(map[int]domain.Book),
-		},
+		//Database: db.Repository{
+		//	Store: make(map[int]domain.Book),
+		//},
+		Database: repo,
 	}
 
 	r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)

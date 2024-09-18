@@ -1,0 +1,33 @@
+version: '1.22.4'
+
+volumes:
+  postgres1-data:
+  postgres2-data:
+# docker compose up
+services:
+
+  postgres1:
+    container_name: container-pg1
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mkv
+      POSTGRES_PASSWORD: book_server
+      POSTGRES_DB: book_database
+    volumes:
+      - postgres1-data:/var/lib/postgresql/data
+    restart: always
+
+  postgres2:
+    container_name: container-pg2
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+    volumes:
+      - postgres2-data:/var/lib/postgresql/data
+    restart: always
