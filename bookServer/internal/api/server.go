@@ -11,7 +11,7 @@ import (
 )
 
 type Server struct {
-	Database db.Repository `json:"database"`
+	Database *db.Repository `json:"database"`
 }
 
 func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
