@@ -1,7 +1,7 @@
 package db
 
 import (
-	"bookServer/internal/domain"
+	"books/bookServer/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -12,36 +12,47 @@ type Repository struct {
 	gormDB *gorm.DB
 }
 
-func NewRepository(db *gorm.Db) *Repository {
+func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{gormDB: db}
 }
 
 func (d Repository) SaveBookToDataBase(book domain.Book) (domain.Book, error) {
 
-	result := d.gormDB.Creat(&book)
+	result := d.gormDB.Create(&book)
 	if result.Error != nil {
 		return domain.Book{}, result.Error
 	}
 	return book, nil
-}
+} //
 
-func (d Repository) GetBookFromDatabase(id uint) domain.Book {
-	//return d.Store[id]
-	return domain.Book{}
+func (d Repository) GetBookFromDatabase(id uint) (domain.Book, error) {
+	var book domain.Book
+	var result = d.gormDB.First(&book, id)
+	if result != nil {
+		return book, result.Error // ???
+	}
+	return book, nil
+} //
+func (d Repository) GetAllBookFromDatabase() ([]domain.Book, error) {
+	var books []domain.Book
+	result := d.gormDB.Find(&books)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return books, nil
 }
-func (d Repository) GetAllBookFromDatabase() []domain.Book {
-	//return d.Store
+func (d Repository) DeleteBookFromDatabase(id uint) error {
+	var book domain.Book
+	var result = d.gormDB.Delete(&book, id)
+	if result != nil {
+		return result.Error
+	}
 	return nil
-}
-func (d Repository) DeleteBookFromDatabase(id uint) domain.Book {
-
-	//delete(d.Store, id)
-	//return d.Store[id]
-	return domain.Book{}
-}
-func (d Repository) UpDateBookToDataBase(book domain.Book, id uint) domain.Book {
-
-	//d.Store[id] = book
-
-	return book
-}
+} //
+func (d Repository) UpDateBookToDataBase(book domain.Book) error {
+	result := d.gormDB.Save(book)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+} //

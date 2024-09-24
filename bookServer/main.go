@@ -4,9 +4,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"bookServer/internal/api"
-	"bookServer/internal/db"
-	"bookServer/internal/domain"
+	"books/bookServer/internal/api"
+	"books/bookServer/internal/db"
+	"books/bookServer/internal/domain"
 
 	"fmt"
 	"log"
