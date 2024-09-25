@@ -1,7 +1,7 @@
 package db
 
 import (
-	"books/bookServer/internal/domain"
+	"books/internal/domain"
 
 	"gorm.io/gorm"
 )

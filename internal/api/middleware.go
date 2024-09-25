@@ -3,17 +3,17 @@ package api
 import (
 	"log/slog"
 	"net/http"
-	"os"
+
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
-var minimalLevel = slog.LevelInfo // другого метода пока не нашёл, чтобы работали логеры, которые на в "main"
+//var minimalLevel = slog.LevelInfo // другого метода пока не нашёл, чтобы работали логеры, которые на в "main"
 
-var Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ // пришлось дублировать файлы из "main"
-	Level: minimalLevel,
-}))
+//var Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ // пришлось дублировать файлы из "main"
+//	Level: minimalLevel,
+//}))
 
 func Logging(Logger *slog.Logger) mux.MiddlewareFunc {
 

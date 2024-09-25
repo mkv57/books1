@@ -1,8 +1,8 @@
 package api
 
 import (
-	"books/bookServer/internal/db"
-	"books/bookServer/internal/domain"
+	"books/internal/db"
+	"books/internal/domain"
 	"encoding/json"
 
 	"errors"
@@ -100,7 +100,7 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
-	Logger.Info("отправлен ответ")
+	//Logger.Info("отправлен ответ")
 } //
 
 func (p Server) UpdateBook(w http.ResponseWriter, r *http.Request) {
@@ -136,5 +136,5 @@ func (p Server) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 	}
 	w.WriteHeader(http.StatusNoContent)
-	Logger.Info("удалена книга")
+	//Logger.Info("удалена книга")
 } //
