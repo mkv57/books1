@@ -1,12 +1,15 @@
 package main
 
 import (
+	"log/slog"
+
+	"gopkg.in/yaml.v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"books/bookServer/internal/api"
-	"books/bookServer/internal/db"
-	"books/bookServer/internal/domain"
+	"books/internal/api"
+	"books/internal/db"
+	"books/internal/domain"
 
 	"fmt"
 	"log"
@@ -16,9 +19,29 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Config struct {
+	DSN      string `yaml:"dsn"`
+	LogLevel int    `yaml:"log_level"`
+}
+
 func main() {
 
-	file, err := os.OpenFile("app.log", os.O_APPEND, 0666)
+	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books/config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var systemconfig Config
+	err = yaml.Unmarshal(yamlContent, &systemconfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//var minimalLevel = slog.LevelInfo
+	var Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.Level(systemconfig.LogLevel),
+	}))
+
+	file, err := os.OpenFile("../../app.log", os.O_APPEND, 0666)
 
 	if err != nil {
 		fmt.Println(err)
@@ -26,8 +49,8 @@ func main() {
 	}
 	defer file.Close()
 
-	dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
-	config := postgres.Open(dsn)
+	//dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
+	config := postgres.Open(systemconfig.DSN)
 	gormDB, err := gorm.Open(config, &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -43,7 +66,7 @@ func main() {
 
 	repo := db.NewRepository(gormDB)
 
-	r.Use(api.Logging(api.Logger))
+	r.Use(api.Logging(Logger))
 
 	ourServer := api.Server{
 		//Database: db.Repository{
@@ -58,12 +81,12 @@ func main() {
 	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
-	api.Logger.Warn("сервер запущен")
+	Logger.Warn("сервер запущен")
 	fmt.Println("сервер запущен")
 	err = http.ListenAndServe("127.0.0.1:8080", r)
-	api.Logger.Warn("сервер отключён")
+	Logger.Warn("сервер отключён")
 	if err != nil {
-		api.Logger.Error("сервер нe запустился")
+		Logger.Error("сервер нe запустился")
 		log.Fatal(err)
 	}
 
