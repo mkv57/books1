@@ -12,6 +12,7 @@ func Logging1(log *slog.Logger) mux.MiddlewareFunc {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log1 := log
 			log = log.With(
 				slog.String("ip", r.RemoteAddr),
 				slog.String("url_path", r.URL.Path),
@@ -24,7 +25,7 @@ func Logging1(log *slog.Logger) mux.MiddlewareFunc {
 			r = r.WithContext(ctx)
 
 			next.ServeHTTP(w, r)
-			//log = nil
+			log = log1
 
 		})
 	}

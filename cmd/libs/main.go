@@ -25,13 +25,7 @@ type Config struct {
 }
 
 func main() {
-	/*ctx := r.Context()
-	log, found := logger.FromContext(ctx)
-	if found == false {
-		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
-		return
-	}
-	*/
+
 	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books/config.yml")
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +46,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer file.Close()
-	//dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
+
 	config := postgres.Open(systemconfig.DSN)
 	gormDB, err := gorm.Open(config, &gorm.Config{})
 	if err != nil {
@@ -92,7 +86,7 @@ func main() {
 	log.Warn("сервер отключён")
 	if err != nil {
 		log.Debug("сервер нe запустился")
-		//log.Fatal(err)
+		log.Error("сервер не запустился")
 	}
 
 }
