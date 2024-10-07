@@ -3,6 +3,7 @@ package api
 import (
 	"books/internal/db"
 	"books/internal/domain"
+	"books/internal/logger"
 	"encoding/json"
 
 	"errors"
@@ -16,6 +17,13 @@ type Server struct {
 }
 
 func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	log.Info("отправляем в ответ книгу")
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -35,11 +43,19 @@ func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
-} //
+}
 
 func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	log.Info("сохраняем книгу")
 
+	w.Header().Set("Content-Type", "application/json")
+	r.Context()
 	jsong, err := io.ReadAll(r.Body)
 
 	if err != nil {
@@ -100,8 +116,14 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
-	//Logger.Info("отправлен ответ")
-} //
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	log.Info("отправлен ответ")
+}
 
 func (p Server) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -121,9 +143,22 @@ func (p Server) UpdateBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-} //
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	log.Info("обновили книгу")
+}
 
 func (p Server) DeleteBook(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	idstr := r.URL.Query().Get("id")
 	idint, err := strconv.Atoi(idstr)
@@ -136,5 +171,5 @@ func (p Server) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 	}
 	w.WriteHeader(http.StatusNoContent)
-	//Logger.Info("удалена книга")
-} //
+	log.Info("удалена книга")
+}

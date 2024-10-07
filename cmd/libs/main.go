@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log/slog"
+	"log"
 
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/postgres"
@@ -12,7 +12,7 @@ import (
 	"books/internal/domain"
 
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -25,7 +25,13 @@ type Config struct {
 }
 
 func main() {
-
+	/*ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	*/
 	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books/config.yml")
 	if err != nil {
 		log.Fatal(err)
@@ -36,19 +42,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//var minimalLevel = slog.LevelInfo
-	var Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	var log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.Level(systemconfig.LogLevel),
 	}))
 
 	file, err := os.OpenFile("../../app.log", os.O_APPEND, 0666)
-
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer file.Close()
-
 	//dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
 	config := postgres.Open(systemconfig.DSN)
 	gormDB, err := gorm.Open(config, &gorm.Config{})
@@ -66,7 +69,9 @@ func main() {
 
 	repo := db.NewRepository(gormDB)
 
-	r.Use(api.Logging(Logger))
+	//r.Use(api.Logging(log))
+
+	r.Use(api.Logging1(log))
 
 	ourServer := api.Server{
 		//Database: db.Repository{
@@ -81,13 +86,13 @@ func main() {
 	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
-	Logger.Warn("сервер запущен")
-	fmt.Println("сервер запущен")
+	log.Warn("сервер запущен")
+	//fmt.Println("сервер запущен")
 	err = http.ListenAndServe("127.0.0.1:8080", r)
-	Logger.Warn("сервер отключён")
+	log.Warn("сервер отключён")
 	if err != nil {
-		Logger.Error("сервер нe запустился")
-		log.Fatal(err)
+		log.Debug("сервер нe запустился")
+		//log.Fatal(err)
 	}
 
 }
