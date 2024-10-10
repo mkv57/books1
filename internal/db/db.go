@@ -23,11 +23,12 @@ func (d Repository) SaveBookToDataBase(book domain.Book) (domain.Book, error) {
 		return domain.Book{}, result.Error
 	}
 	return book, nil
-} //
+}
 
 func (d Repository) GetBookFromDatabase(id uint) (domain.Book, error) {
 	var book domain.Book
 	var result = d.gormDB.First(&book, id)
+	//result, _ := d.gormDB.Get("ID =5")
 	if result != nil {
 		return book, result.Error // ???
 	}
@@ -41,6 +42,7 @@ func (d Repository) GetAllBookFromDatabase() ([]domain.Book, error) {
 	}
 	return books, nil
 }
+
 func (d Repository) DeleteBookFromDatabase(id uint) error {
 	var book domain.Book
 	var result = d.gormDB.Delete(&book, id)
@@ -48,7 +50,7 @@ func (d Repository) DeleteBookFromDatabase(id uint) error {
 		return result.Error
 	}
 	return nil
-} //
+}
 func (d Repository) UpDateBookToDataBase(book domain.Book) error {
 	result := d.gormDB.Save(book)
 	if result.Error != nil {

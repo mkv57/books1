@@ -11,6 +11,10 @@ import (
 	"books/internal/db"
 	"books/internal/domain"
 
+	//"github.com/vschst/gorm-logger"
+	//"gorm.io/driver/sqlite"
+	// "gorm.io/gorm"
+
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -36,7 +40,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	/*log := logrus.New()
+	  newLogger := logger.New(log, logger.Config{
+	      SlowThreshold:  time.Second,
+	      SkipErrRecordNotFound: true,
+	      LogLevel:   gormLogger.Error,
+	  })
+
+	  db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
+	      Logger: newLogger,
+	  })
+	*/
+
+	var log2 = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.Level(systemconfig.LogLevel),
 	}))
 
@@ -65,7 +81,7 @@ func main() {
 
 	//r.Use(api.Logging(log))
 
-	r.Use(api.Logging1(log))
+	r.Use(api.Logging1(log2))
 
 	ourServer := api.Server{
 		//Database: db.Repository{
@@ -80,13 +96,12 @@ func main() {
 	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
-	log.Warn("сервер запущен")
+	log2.Warn("сервер запущен")
 	//fmt.Println("сервер запущен")
 	err = http.ListenAndServe("127.0.0.1:8080", r)
-	log.Warn("сервер отключён")
+	log2.Warn("сервер отключён")
 	if err != nil {
-		log.Debug("сервер нe запустился")
-		log.Error("сервер не запустился")
+		log2.Debug("сервер нe запустился")
 	}
 
 }
