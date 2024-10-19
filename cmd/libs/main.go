@@ -1,5 +1,7 @@
 package main
 
+//dsn2: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
+
 import (
 	"log"
 
@@ -11,21 +13,22 @@ import (
 	"books/internal/db"
 	"books/internal/domain"
 
-	//"github.com/vschst/gorm-logger"
-	//"gorm.io/driver/sqlite"
-	// "gorm.io/gorm"
-
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type Config struct {
-	DSN      string `yaml:"dsn"`
-	LogLevel int    `yaml:"log_level"`
+	DSN string `yaml:"dsn"`
+	//DSN_r    string `yaml:"dsn2"`
+	LogLevel int `yaml:"log_level"`
 }
 
 func main() {
@@ -39,18 +42,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	/*log := logrus.New()
-	  newLogger := logger.New(log, logger.Config{
-	      SlowThreshold:  time.Second,
-	      SkipErrRecordNotFound: true,
-	      LogLevel:   gormLogger.Error,
-	  })
-
-	  db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
-	      Logger: newLogger,
-	  })
-	*/
 
 	var log2 = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.Level(systemconfig.LogLevel),
@@ -77,6 +68,22 @@ func main() {
 
 	r := mux.NewRouter()
 
+	/*rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	m, err := migrate.New(
+		"file://migrate",
+		systemconfig.DSN_r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Up(); err != nil {
+		log.Fatal(err)
+	}
+	*/
 	repo := db.NewRepository(gormDB)
 
 	//r.Use(api.Logging(log))
