@@ -27,7 +27,7 @@ import (
 
 type Config struct {
 	DSN string `yaml:"dsn"`
-	//DSN_r    string `yaml:"dsn2"`
+	//DSN2     string `yaml:"dsn2"`
 	LogLevel int `yaml:"log_level"`
 }
 
@@ -66,8 +66,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := mux.NewRouter()
-
 	/*rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
 	if err != nil {
 		fmt.Println(err)
@@ -75,8 +73,8 @@ func main() {
 	}
 
 	m, err := migrate.New(
-		"file://migrate",
-		systemconfig.DSN_r)
+		"file://../../migrate",
+		"postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,16 +82,14 @@ func main() {
 		log.Fatal(err)
 	}
 	*/
-	repo := db.NewRepository(gormDB)
+	r := mux.NewRouter()
 
-	//r.Use(api.Logging(log))
+	repo := db.NewRepository(gormDB)
 
 	r.Use(api.Logging1(log2))
 
 	ourServer := api.Server{
-		//Database: db.Repository{
-		//	Store: make(map[int]domain.Book),
-		//},
+
 		Database: repo,
 	}
 

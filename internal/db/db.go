@@ -2,6 +2,8 @@ package db
 
 import (
 	"books/internal/domain"
+	"database/sql"
+
 	//"database/sql"
 
 	"gorm.io/gorm"
@@ -9,7 +11,7 @@ import (
 
 type Repository struct {
 	//Store map[int]domain.Book
-	//db     *sql.DB
+	db     *sql.DB
 	gormDB *gorm.DB
 }
 
