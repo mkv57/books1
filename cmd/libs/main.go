@@ -3,6 +3,7 @@ package main
 //dsn2: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
 
 import (
+	"database/sql"
 	"log"
 
 	"gopkg.in/yaml.v3"
@@ -26,9 +27,9 @@ import (
 )
 
 type Config struct {
-	DSN string `yaml:"dsn"`
-	//DSN2     string `yaml:"dsn2"`
-	LogLevel int `yaml:"log_level"`
+	DSN      string `yaml:"dsn"`
+	DSN2     string `yaml:"dsn2"`
+	LogLevel int    `yaml:"log_level"`
 }
 
 func main() {
@@ -66,15 +67,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	/*rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
+	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	m, err := migrate.New(
+	/*m, err := migrate.New(
 		"file://../../migrate",
-		"postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable")
+		systemconfig.DSN2)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,7 +85,7 @@ func main() {
 	*/
 	r := mux.NewRouter()
 
-	repo := db.NewRepository(gormDB)
+	repo := db.NewRepository(gormDB, rawSQLConn)
 
 	r.Use(api.Logging1(log2))
 
@@ -101,9 +102,9 @@ func main() {
 
 	log2.Warn("сервер запущен")
 	//fmt.Println("сервер запущен")
-	err = http.ListenAndServe("127.0.0.1:8080", r)
+	err1 := http.ListenAndServe("127.0.0.1:8080", r)
 	log2.Warn("сервер отключён")
-	if err != nil {
+	if err1 != nil {
 		log2.Debug("сервер нe запустился")
 	}
 
