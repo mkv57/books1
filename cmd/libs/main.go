@@ -1,5 +1,6 @@
 package main
 
+//dsт: "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
 //dsn2: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
 
 import (
@@ -7,18 +8,16 @@ import (
 	"log"
 
 	"gopkg.in/yaml.v3"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"books/internal/api"
 	"books/internal/db"
-	"books/internal/domain"
 
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
@@ -28,7 +27,6 @@ import (
 
 type Config struct {
 	DSN      string `yaml:"dsn"`
-	DSN2     string `yaml:"dsn2"`
 	LogLevel int    `yaml:"log_level"`
 }
 
@@ -55,37 +53,24 @@ func main() {
 	}
 	defer file.Close()
 
-	config := postgres.Open(systemconfig.DSN)
-	gormDB, err := gorm.Open(config, &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	err = gormDB.AutoMigrate(&domain.Book{})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	r := mux.NewRouter()
 
-	/*m, err := migrate.New(
+	m, err := migrate.New(
 		"file://../../migrate",
-		systemconfig.DSN2)
+		systemconfig.DSN)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := m.Up(); err != nil {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
-	*/
-	r := mux.NewRouter()
 
-	repo := db.NewRepository(gormDB, rawSQLConn)
+	repo := db.NewRepository(rawSQLConn)
 
 	r.Use(api.Logging1(log2))
 
@@ -101,7 +86,7 @@ func main() {
 	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
 	log2.Warn("сервер запущен")
-	//fmt.Println("сервер запущен")
+
 	err1 := http.ListenAndServe("127.0.0.1:8080", r)
 	log2.Warn("сервер отключён")
 	if err1 != nil {
