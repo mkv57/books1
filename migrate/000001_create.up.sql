@@ -21,9 +21,9 @@ year_id INTEGER NOT NULL
 );
 CREATE TABLE books2
 (
-id_id serial PRIMARY KEY,
-title_id VARCHAR (50) UNIQUE NOT NULL,
-year_id INTEGER NOT NULL
+id_id_1 serial PRIMARY KEY,
+title_id_1 VARCHAR (50) UNIQUE NOT NULL,
+year_id_1 INTEGER NOT NULL
 );
 
 

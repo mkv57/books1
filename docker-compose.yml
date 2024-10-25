@@ -1,7 +1,6 @@
 version: '1.22.4'
 
-volumes:
-  postgres1-data:
+
 # docker compose up
 services:
 
@@ -15,7 +14,9 @@ services:
       POSTGRES_PASSWORD: book_server
       POSTGRES_DB: book_database
     volumes:
-      - postgres1-data:/var/lib/postgresql/data
+      - postgres-data-books:/var/lib/postgresql/data
     restart: always
 
+volumes:
+  postgres-data-books:
  
