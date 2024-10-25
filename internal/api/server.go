@@ -5,6 +5,7 @@ import (
 	"books/internal/domain"
 	"books/internal/logger"
 	"encoding/json"
+	"fmt"
 
 	"errors"
 	"io"
@@ -59,7 +60,6 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
 		return
 	}
-	log.Info("сохраняем книгу")
 
 	w.Header().Set("Content-Type", "application/json")
 	r.Context()
@@ -76,11 +76,6 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//result, err := p.Database.SaveBookToDataBase(newBook)
-	//if err != nil {
-	//	handleError(w, http.StatusInternalServerError, err)
-	//	return
-	//}
 	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
@@ -93,6 +88,7 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
+	log.Info("сохраняем книгу")
 } //
 
 func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
@@ -101,14 +97,15 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	limit := query.Get("limit")
 
-	var books []domain.Book
+	//var books []domain.Book
 	/*Books, err := p.Database.GetAllBookFromDatabase()
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 	*/
-	Books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
+	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
+	//fmt.Println(books)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
 		return
@@ -120,19 +117,24 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 			handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
 			return
 		}
-		if limitNum > len(Books) {
-			limitNum = len(Books)
+		fmt.Println(limitNum)
+	}
+
+	/*if limitNum > len(*Books) {
+			limitNum = len(*Books)
 		}
 
 		books = Books[:limitNum]
 	} else {
 		books = Books
 	}
+	*/
 	data, err := json.Marshal(books)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	w.Write(data)
 	//ctx := r.Context()
 	log, found := logger.FromContext(ctx)

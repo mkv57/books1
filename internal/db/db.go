@@ -20,34 +20,39 @@ func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.
 	query := "INSERT INTO books (title, year) VALUES ($1,$2) RETURNING *"
 
 	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year)
+	fmt.Println("ERROR9")
 	if err != nil {
 		fmt.Println("ERROR1")
 	}
+
 	return book, nil
 }
 
-func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (domain.Book, error) {
-	var book domain.Book
-	query := "SELECT * FROM books WHERE id = $1"
+func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error) {
+
+	book := &domain.Book{}
+	query := "SELECT id, title, year FROM books WHERE id = $1"
 	err := d.db.QueryRowContext(ctx, query, id).Scan(&book.ID, &book.Title, &book.Year)
 	if err != nil {
 		fmt.Println("ERROR2")
 	}
+
 	return book, nil
 }
 
 func (d Repository) GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error) {
-	var books []domain.Book
-	query := "SELECT * FROM books"
+	books := []domain.Book{}
+	query := "SELECT id, title, year FROM books"
 	rows, err := d.db.QueryContext(ctx, query)
 	if err != nil {
 		fmt.Println("error3")
 	}
 	for rows.Next() {
-		var book domain.Book
+		book := &domain.Book{}
 		rows.Scan(&book.ID, &book.Title, &book.Year)
-		books = append(books, book)
+		books = append(books, *book)
 	}
+
 	return books, nil
 }
 
