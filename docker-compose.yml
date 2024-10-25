@@ -2,7 +2,6 @@ version: '1.22.4'
 
 volumes:
   postgres1-data:
-  postgres2-data:
 # docker compose up
 services:
 
