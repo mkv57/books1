@@ -2,57 +2,76 @@ package db
 
 import (
 	"books/internal/domain"
-
-	"gorm.io/gorm"
+	"context"
+	"database/sql"
+	"fmt"
 )
 
 type Repository struct {
-	//Store map[int]domain.Book
-	//storeFuture *sql.DB
-	gormDB *gorm.DB
+	db *sql.DB
 }
 
-func NewRepository(db *gorm.DB) *Repository {
-	return &Repository{gormDB: db}
+func NewRepository(rawDB *sql.DB) *Repository {
+	return &Repository{db: rawDB}
 }
 
-func (d Repository) SaveBookToDataBase(book domain.Book) (domain.Book, error) {
+func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (domain.Book, error) {
 
-	result := d.gormDB.Create(&book)
-	if result.Error != nil {
-		return domain.Book{}, result.Error
-	}
-	return book, nil
-} //
+	query := "INSERT INTO books (title, year) VALUES ($1,$2) RETURNING *"
 
-func (d Repository) GetBookFromDatabase(id uint) (domain.Book, error) {
-	var book domain.Book
-	var result = d.gormDB.First(&book, id)
-	if result != nil {
-		return book, result.Error // ???
+	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year)
+	fmt.Println("ERROR9")
+	if err != nil {
+		fmt.Println("ERROR1")
 	}
+
 	return book, nil
-} //
-func (d Repository) GetAllBookFromDatabase() ([]domain.Book, error) {
-	var books []domain.Book
-	result := d.gormDB.Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
+}
+
+func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error) {
+
+	book := &domain.Book{}
+	query := "SELECT id, title, year FROM books WHERE id = $1"
+	err := d.db.QueryRowContext(ctx, query, id).Scan(&book.ID, &book.Title, &book.Year)
+	if err != nil {
+		fmt.Println("ERROR2")
 	}
+
+	return book, nil
+}
+
+func (d Repository) GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error) {
+	books := []domain.Book{}
+	query := "SELECT id, title, year FROM books"
+	rows, err := d.db.QueryContext(ctx, query)
+	if err != nil {
+		fmt.Println("error3")
+	}
+	for rows.Next() {
+		book := &domain.Book{}
+		rows.Scan(&book.ID, &book.Title, &book.Year)
+		books = append(books, *book)
+	}
+
 	return books, nil
 }
-func (d Repository) DeleteBookFromDatabase(id uint) error {
-	var book domain.Book
-	var result = d.gormDB.Delete(&book, id)
-	if result != nil {
-		return result.Error
+
+func (d Repository) DeleteBookFromDatabaseByRAWSql(ctx context.Context, id uint) error {
+	_, err := d.db.ExecContext(ctx, "DELETE FROM books WHERE id = $1", id)
+	if err != nil {
+		fmt.Println("ERROR4")
 	}
 	return nil
-} //
-func (d Repository) UpDateBookToDataBase(book domain.Book) error {
-	result := d.gormDB.Save(book)
-	if result.Error != nil {
-		return result.Error
+}
+
+func (d Repository) UpDateBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) error {
+	id := book.ID
+	title := book.Title
+	year := book.Year
+	query := "UPDATE books SET title = $1, year = $2 WHERE id = $3"
+	_, err := d.db.ExecContext(ctx, query, title, year, id)
+	if err != nil {
+		fmt.Println("error5")
 	}
 	return nil
-} //
+}

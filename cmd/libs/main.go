@@ -1,22 +1,28 @@
 package main
 
+//dsт: "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
+//dsn2: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
+
 import (
-	"log/slog"
+	"database/sql"
+	"log"
 
 	"gopkg.in/yaml.v3"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"books/internal/api"
 	"books/internal/db"
-	"books/internal/domain"
 
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type Config struct {
@@ -36,42 +42,40 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//var minimalLevel = slog.LevelInfo
-	var Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	var log2 = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.Level(systemconfig.LogLevel),
 	}))
 
 	file, err := os.OpenFile("../../app.log", os.O_APPEND, 0666)
-
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer file.Close()
 
-	//dsn := "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
-	config := postgres.Open(systemconfig.DSN)
-	gormDB, err := gorm.Open(config, &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	err = gormDB.AutoMigrate(&domain.Book{})
+	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 	r := mux.NewRouter()
 
-	repo := db.NewRepository(gormDB)
+	m, err := migrate.New(
+		"file://../../migrate",
+		systemconfig.DSN)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
 
-	r.Use(api.Logging(Logger))
+	repo := db.NewRepository(rawSQLConn)
+
+	r.Use(api.Logging1(log2))
 
 	ourServer := api.Server{
-		//Database: db.Repository{
-		//	Store: make(map[int]domain.Book),
-		//},
+
 		Database: repo,
 	}
 
@@ -81,13 +85,12 @@ func main() {
 	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
 
-	Logger.Warn("сервер запущен")
-	fmt.Println("сервер запущен")
-	err = http.ListenAndServe("127.0.0.1:8080", r)
-	Logger.Warn("сервер отключён")
-	if err != nil {
-		Logger.Error("сервер нe запустился")
-		log.Fatal(err)
+	log2.Warn("сервер запущен")
+
+	err1 := http.ListenAndServe("127.0.0.1:8080", r)
+	log2.Warn("сервер отключён")
+	if err1 != nil {
+		log2.Debug("сервер нe запустился")
 	}
 
 }
