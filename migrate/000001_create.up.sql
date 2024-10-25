@@ -25,5 +25,11 @@ id_id_1 serial PRIMARY KEY,
 title_id_1 VARCHAR (50) UNIQUE NOT NULL,
 year_id_1 INTEGER NOT NULL
 );
+CREATE TABLE books3
+(
+id_id_2 serial PRIMARY KEY,
+title_id_2 VARCHAR (50) UNIQUE NOT NULL,
+year_id_2 INTEGER NOT NULL
+);
 
 
