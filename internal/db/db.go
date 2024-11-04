@@ -1,7 +1,7 @@
 package db
 
 import (
-	"books/internal/domain"
+	"books1/internal/domain"
 	"context"
 	"database/sql"
 	"fmt"
@@ -15,17 +15,17 @@ func NewRepository(rawDB *sql.DB) *Repository {
 	return &Repository{db: rawDB}
 }
 
-func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (domain.Book, error) {
+func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error) {
+	book1 := &domain.Book{}
+	query := "INSERT INTO books (title, year, id) VALUES ($1, $2, $3) RETURNING title, year, id"
 
-	query := "INSERT INTO books (title, year) VALUES ($1,$2) RETURNING *"
-
-	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year)
+	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year, book.ID).Scan(&book1.Title, &book1.Year, &book1.ID)
 	fmt.Println("ERROR9")
 	if err != nil {
 		fmt.Println("ERROR1")
 	}
 
-	return book, nil
+	return book1, nil
 }
 
 func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error) {

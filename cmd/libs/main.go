@@ -9,8 +9,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"books/internal/api"
-	"books/internal/db"
+	"books1/internal/api"
+	"books1/internal/db"
 
 	"fmt"
 	"log/slog"
@@ -32,7 +32,7 @@ type Config struct {
 
 func main() {
 
-	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books/config.yml")
+	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books1/config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,9 +1,9 @@
 package api
 
 import (
-	"books/internal/db"
-	"books/internal/domain"
-	"books/internal/logger"
+	"books1/internal/domain"
+	"books1/internal/logger"
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -13,8 +13,17 @@ import (
 	"strconv"
 )
 
+type Store interface {
+	SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error)
+	GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error)
+	GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error)
+	DeleteBookFromDatabaseByRAWSql(ctx context.Context, id uint) error
+	UpDateBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) error
+}
+
 type Server struct {
-	Database *db.Repository `json:"database"`
+	//Database *db.Repository `json:"database"`
+	Database Store
 }
 
 func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
@@ -32,12 +41,6 @@ func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusBadRequest, err)
 		return
 	}
-
-	//book, err := p.Database.GetBookFromDatabase(uint(idint))
-	//if err != nil {
-	//	handleError(w, http.StatusInternalServerError, err)
-	//}
-	//fmt.Println(book)
 
 	book1, err := p.Database.GetBookFromDatabaseByRAWSql(ctx, uint(idint))
 	if err != nil {
@@ -81,6 +84,7 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 		handleError(w, http.StatusInternalServerError, err)
 		return
 	}
+	fmt.Println(result)
 
 	data, err := json.Marshal(result)
 	if err != nil {
@@ -97,13 +101,6 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	limit := query.Get("limit")
 
-	//var books []domain.Book
-	/*Books, err := p.Database.GetAllBookFromDatabase()
-	if err != nil {
-		handleError(w, http.StatusInternalServerError, err)
-		return
-	}
-	*/
 	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
 	//fmt.Println(books)
 	if err != nil {
@@ -120,15 +117,6 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(limitNum)
 	}
 
-	/*if limitNum > len(*Books) {
-			limitNum = len(*Books)
-		}
-
-		books = Books[:limitNum]
-	} else {
-		books = Books
-	}
-	*/
 	data, err := json.Marshal(books)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError, err)
@@ -136,7 +124,7 @@ func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(data)
-	//ctx := r.Context()
+
 	log, found := logger.FromContext(ctx)
 	if found == false {
 		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))

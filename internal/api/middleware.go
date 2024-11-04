@@ -1,7 +1,7 @@
 package api
 
 import (
-	"books/internal/logger"
+	"books1/internal/logger"
 	"log/slog"
 	"net/http"
 
