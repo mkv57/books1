@@ -72,11 +72,17 @@ func main() {
 
 	repo := db.NewRepository(rawSQLConn)
 
+	//fakeDB := fake_db.NewFakeDB()
+
+	var store api.Store
+	store = repo
+	//store = fakeDB
+
 	r.Use(api.Logging1(log2))
 
 	ourServer := api.Server{
 
-		Database: repo,
+		Database: store,
 	}
 
 	r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
