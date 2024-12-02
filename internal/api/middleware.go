@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Logging1(log *slog.Logger) mux.MiddlewareFunc {
+func Log(log *slog.Logger) mux.MiddlewareFunc {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

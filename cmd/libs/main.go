@@ -72,17 +72,11 @@ func main() {
 
 	repo := db.NewRepository(rawSQLConn)
 
-	//fakeDB := fake_db.NewFakeDB()
-
-	var store api.Store
-	store = repo
-	//store = fakeDB
-
-	r.Use(api.Logging1(log2))
+	r.Use(api.Log(log2))
 
 	ourServer := api.Server{
 
-		Database: store,
+		Database: repo,
 	}
 
 	r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
@@ -93,7 +87,7 @@ func main() {
 
 	log2.Warn("сервер запущен")
 
-	err1 := http.ListenAndServe("127.0.0.1:8080", r)
+	err1 := http.ListenAndServe("localhost:8080", r)
 	log2.Warn("сервер отключён")
 	if err1 != nil {
 		log2.Debug("сервер нe запустился")
