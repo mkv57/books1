@@ -5,6 +5,7 @@ import (
 	"books1/internal/logger"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -28,7 +29,7 @@ func TestServer_GetBook(t *testing.T) {
 		Database: mockStore,
 	}
 
-	expectedBook := &domain.Book{
+	expectedBook := &domain.Book{ // создаём экземпляр структуры Book
 		ID:        1,
 		Title:     "ttttttt",
 		Year:      2021,
@@ -36,37 +37,40 @@ func TestServer_GetBook(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ // создаём переменную log для добавления в context
 		Level: slog.LevelDebug,
 	}))
 
-	ctx := context.Background()
+	ctx := context.Background() // создаём переменную типа context с пустым значением Background
 
-	ctx = logger.NewContext(ctx, log)
+	ctx = logger.NewContext(ctx, log) // вкладываем в context 2е переменные ctx и log , как и в функции GetBookFromDatabaseByRAWSql
 
 	mockStore.EXPECT().
 		GetBookFromDatabaseByRAWSql(ctx, uint(1)).
-		Return(expectedBook, nil)
+		Return(expectedBook, nil) // ???
 
-	reg, err := http.NewRequest(http.MethodGet, "http://localhost:8080/book?id=1", nil)
+	reg, err := http.NewRequest(http.MethodGet, "http://localhost:8080/book?id=1", nil) // оправляем запрос на обработчик GetBook, который вызывает
+	// функцию GetBookFromDatabaseByRAWSql(ctx, uint(idint)), он достаёт  данные из структуры Book и эти данные отправляются
+	// в Request reg	???
 
 	require.NoError(t, err) // проверка используется вместо if t!= nil  но только для тестов
 
-	reg = reg.WithContext(ctx)
+	reg = reg.WithContext(ctx) // добавляем в запрос в context то же значение ctx
 
-	resp := httptest.NewRecorder()
+	resp := httptest.NewRecorder() // ??? создаём переменную типа ResponseWrite, чтобы вызвать GetBook, вложив resp
+	fmt.Println("1", resp.Body, "q", reg)
 
-	server.GetBook(resp, reg)
+	server.GetBook(resp, reg) // вызываем функцию, которая должна записать в тело ответа resp.Body  json c данными структуры Book
+	fmt.Println("2", resp.Body, "q", reg)
+	result := &domain.Book{} // создаём переменную типа структуры Book
 
-	result := &domain.Book{}
+	err = json.Unmarshal(resp.Body.Bytes(), &result) // resp.Body.Bytes() что это ???	распарсили json и вложили данные в result
+	require.NoError(t, err)                          // проверка на ошибки
 
-	err = json.Unmarshal(resp.Body.Bytes(), &result)
-	require.NoError(t, err)
+	expectedBook.CreatedAt = result.CreatedAt // уровняли зачения времени, так как будут разные значения
+	expectedBook.UpdatedAt = result.UpdatedAt // уровняли зачения времени
 
-	expectedBook.CreatedAt = result.CreatedAt
-	expectedBook.UpdatedAt = result.UpdatedAt
-
-	require.Equal(t, expectedBook, result)
+	require.Equal(t, expectedBook, result) // сравнили результаты
 }
 
 /*func TestServer_GetBook(t *testing.T) {

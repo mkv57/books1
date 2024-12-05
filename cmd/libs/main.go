@@ -87,9 +87,9 @@ func main() {
 
 	log2.Warn("сервер запущен")
 
-	err1 := http.ListenAndServe("localhost:8080", r)
+	err = http.ListenAndServe("localhost:8080", r)
 	log2.Warn("сервер отключён")
-	if err1 != nil {
+	if err != nil {
 		log2.Debug("сервер нe запустился")
 	}
 
