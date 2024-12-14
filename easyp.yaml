@@ -1,0 +1,40 @@
+version: vlalpha
+
+deps: [
+  github.com/googleapis/googleapis,
+  github.com/grpc-ecosystem/grpc-gateway,
+  github.com/bufbuild/protoc-gen-validate
+]
+
+# deps: [
+#   github.com/grpc-ecosystem/grpc-gateway,
+# ]
+# установить easyp
+# go install github.com/easyp-tech/easyp/cmd/easyp@latest 
+# команды 
+# easyp mod update
+# easyp generate
+
+generate:
+  plugins:
+  - name: go    
+    out: .
+    opts:
+      paths: source_relative
+  - name: go-grpc 
+    out: .
+    opts:
+      paths: source_relative
+      require_unimplemented_servers: false
+  - name: grpc-gateway 
+    out: .
+    opts:
+      paths: source_relative
+  - name: openapiv2
+    out: .
+    opts:
+      simple_operation_ids: false
+      generate_unbound_methods: false
+
+
+

@@ -27,6 +27,7 @@ type Server struct {
 }
 
 func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
+
 	ctx := r.Context()
 	log, found := logger.FromContext(ctx)
 	if found == false {
@@ -55,6 +56,37 @@ func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 
 }
+
+/*
+
+func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.AddBookResponse, error) {
+	ctx := r.Context()
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		return nil, errors.New("нет логера")
+	}
+
+	newBook := domain.Book{
+	Title: request.Title,
+	Year: request.Year,
+	}
+
+	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, err)
+		return nil, err
+	}
+
+	return &pb.AddBookResponse{Book: &pb.Book{
+	Id: int64(result.Id),
+	Title: result.Title,
+	Year: int32(result.Year),
+	}}, nil
+
+	log.Info("сохраняем книгу")
+}
+
+*/
 
 func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
