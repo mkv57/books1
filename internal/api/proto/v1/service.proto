@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package api.proto.v1;
+
+option go_package = ".;pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotatios.proto";
+
+// easyp generate
+
+service BookAPI {
+    rpc AddBook (AddBookRequest) returns (AddBookResponse) {
+        option (google.api.http) = {
+            post: "/book"
+            body: "*"
+        };
+    };
+}
+
+message AddBookRequest{
+
+string title = 1;
+int32 year = 2;
+
+}
+
+message AddBookResponse{
+Book book = 1;
+}
+
+message Book {
+    int64 id = 1;
+    string title = 2;
+    int32 year = 3;
+    google.protobuf.Timestamp cteated_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
+

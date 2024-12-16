@@ -15,6 +15,12 @@ func NewRepository(rawDB *sql.DB) *Repository {
 	return &Repository{db: rawDB}
 }
 
+/*
+
+
+
+ */
+
 func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error) {
 	book1 := &domain.Book{}
 	query := "INSERT INTO books (title, year, id) VALUES ($1, $2, $3) RETURNING title, year, id"
