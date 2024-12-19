@@ -1,7 +1,7 @@
 package main
 
 //dsт: "host=localhost user=mkv password=book_server dbname=book_database port=5432 sslmode=disable"
-//dsn2: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
+//dsn2: "postgres://mkv:book_server@localhost:5435/book_database?sslmode=disable"
 
 import (
 	"database/sql"
@@ -32,7 +32,7 @@ type Config struct {
 
 func main() {
 
-	yamlContent, err := os.ReadFile("C:/Users/Konstantin/Desktop/books1/config.yml")
+	yamlContent, err := os.ReadFile("../../config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,2 +1,2 @@
-dsn: "postgres://mkv:book_server@localhost:5432/book_database?sslmode=disable"
+dsn: "postgres://mkv:book_server@localhost:5435/book_database?sslmode=disable"
 log_level: -4
