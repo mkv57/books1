@@ -5,7 +5,7 @@ package api.proto.v1;
 option go_package = ".;pb";
 
 import "google/protobuf/timestamp.proto";
-import "google/api/annotatios.proto";
+import "google/api/annotations.proto";
 
 // easyp generate
 
@@ -18,14 +18,14 @@ service BookAPI {
     };
 }
 
-message AddBookRequest{
+message AddBookRequest {
 
 string title = 1;
 int32 year = 2;
 
 }
 
-message AddBookResponse{
+message AddBookResponse {
 Book book = 1;
 }
 

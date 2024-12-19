@@ -4,12 +4,20 @@ package main
 //dsn2: "postgres://mkv:book_server@localhost:5435/book_database?sslmode=disable"
 
 import (
+	"context"
 	"database/sql"
 	"log"
+	"net"
 
+	// grpc_gateway_runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	//grpc_gateway_runtime
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v3"
 
 	"books1/internal/api"
+	pb "books1/internal/api/proto/v1"
 	"books1/internal/db"
 
 	"fmt"
@@ -79,57 +87,58 @@ func main() {
 		Database: repo,
 	}
 
-	/*
-		// создаём структуру которая слушает порты для получениязапроса по grpc( и только)
-		ln, err := net.Listen("tcp", "localhost:8080")
-				if err != nil { log.Fatal("net.Listen(): %v", err)}
-
-			server := grpc.NewServer(
-			grpc.Creds(insecure.NewCredentials()),
-			)
-		// здесь регестрируем хендеры для grpc
-			pb.RegisterBookAPIServer(server, &ourServer)
-		// здесь запускаем только grpc сервер
-		go func() {
-			if err := server.Serve(ln); err != nil {
-				log.Fatal("server.Serve(): %v", err)
-		}
-		}()
-									// здесь создаём конструкцию, которая умеет вызывать (grpc) методы
-		conn, err := grpc.NewClient("localhost:8080",
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			)
-			if err != nil {
-				log.Fatal("grpc.NewClient(): %v", err)
-			}
-		defer conn.Close()
-				// TODO: fix me
-			// HTTP  сервер не умеет обрабатывать grpc запросы, поэтому используем grpc-gateway
-		gw := grpc_gateway_runtime.NewServeMux() // нужно сделать тег grpc_gateway_runtime сдесь в main.go
-				// grpc- gateway принимает клиент до grpc сервера и преобразует HTTP (REST) в grpc
-				// и перенаправляет через client
-		err = pb.RegisterBookAPIHandler(context.TODO(), gw, conn)
-																	if err != nil { log.Fatal("RegisterServiceAPIHandler(): %v", err) }
-			// web стучится по REST в gateway, который конвертирует из HTTP в grpc
-			// тот получил и отправил grpc-client и тот в grpc-server
-		gwServer := &http.Server{
-			Addr: "0.0.0.0:8080",
-			Handler: gw,
-		}
-
-	*/
-
-	r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
-	r.HandleFunc("/book", ourServer.AddBook).Methods(http.MethodPost)
-	r.HandleFunc("/book", ourServer.DeleteBook).Methods(http.MethodDelete)
-	r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
-	r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
-
-	log2.Warn("сервер запущен")
-	// err1 := gwServer.ListenAndServe()
-	err = http.ListenAndServe("localhost:8080", r)
-	log2.Warn("сервер отключён")
+	// создаём структуру которая слушает порты для получениязапроса по grpc( и только)
+	ln, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
+		log.Fatal("net.Listen(): %v", err)
+	}
+
+	server := grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+	)
+	// здесь регестрируем хендеры для grpc
+	pb.RegisterBookAPIServer(server, &ourServer)
+	// здесь запускаем только grpc сервер
+	go func() {
+		if err := server.Serve(ln); err != nil {
+			log.Fatal("server.Serve(): %v", err)
+		}
+	}()
+	// здесь создаём конструкцию, которая умеет вызывать (grpc) методы
+	conn, err := grpc.NewClient("localhost:8080",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatal("grpc.NewClient(): %v", err)
+	}
+	defer conn.Close()
+	// TODO: fix me
+	// HTTP  сервер не умеет обрабатывать grpc запросы, поэтому используем grpc-gateway
+	var gw = runtime.NewServeMux() // нужно сделать тег grpc_gateway_runtime сдесь в main.go
+	// grpc- gateway принимает клиент до grpc сервера и преобразует HTTP (REST) в grpc
+	// и перенаправляет через client
+	err = pb.RegisterBookAPIHandler(context.Background(), gw, conn)
+	if err != nil {
+		log.Fatal("RegisterServiceAPIHandler(): %v", err)
+	}
+	// web стучится по REST в gateway, который конвертирует из HTTP в grpc
+	// тот получил и отправил grpc-client и тот в grpc-server
+	gwServer := &http.Server{
+		Addr:    "0.0.0.0:8080",
+		Handler: gw,
+	}
+	/*
+		r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
+		r.HandleFunc("/book", ourServer.AddBook).Methods(http.MethodPost)
+		r.HandleFunc("/book", ourServer.DeleteBook).Methods(http.MethodDelete)
+		r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
+		r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
+	*/
+	log2.Warn("сервер запущен")
+	err1 := gwServer.ListenAndServe()
+	//err = http.ListenAndServe("localhost:8080", r)
+	log2.Warn("сервер отключён")
+	if err1 != nil {
 		fmt.Println(555)
 		log2.Debug("сервер нe запустился")
 	}

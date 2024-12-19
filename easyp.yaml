@@ -11,6 +11,8 @@ deps: [
 # ]
 # установить easyp
 # go install github.com/easyp-tech/easyp/cmd/easyp@latest 
+# echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+#  после команд закрывать терминал и открывать нозаново, потом вводить команду
 # команды 
 # easyp mod update
 # easyp generate

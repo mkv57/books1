@@ -1,6 +1,7 @@
 package api
 
 import (
+	pb "books1/internal/api/proto/v1"
 	"books1/internal/domain"
 	"books1/internal/logger"
 	"context"
@@ -57,37 +58,32 @@ func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*
-
 func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.AddBookResponse, error) {
-	ctx := r.Context()
-	log, found := logger.FromContext(ctx)
+	_, found := logger.FromContext(ctx)
 	if found == false {
 		return nil, errors.New("нет логера")
 	}
 
 	newBook := domain.Book{
-	Title: request.Title,
-	Year: request.Year,
+		Title: request.Title,
+		Year:  int(request.Year),
 	}
 
 	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook)
 	if err != nil {
-		handleError(w, http.StatusInternalServerError, err)
 		return nil, err
 	}
 
 	return &pb.AddBookResponse{Book: &pb.Book{
-	Id: int64(result.Id),
-	Title: result.Title,
-	Year: int32(result.Year),
+		Id:    int64(result.ID),
+		Title: result.Title,
+		Year:  int32(result.Year),
 	}}, nil
 
-	log.Info("сохраняем книгу")
+	//log.Info("сохраняем книгу")
 }
 
-*/
-
+/*
 func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log, found := logger.FromContext(ctx)
@@ -126,6 +122,7 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 	log.Info("сохраняем книгу")
 } //
+*/
 
 func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
