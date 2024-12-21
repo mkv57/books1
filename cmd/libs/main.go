@@ -10,8 +10,7 @@ import (
 	"net"
 
 	// grpc_gateway_runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	//grpc_gateway_runtime
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	grpc_gateway_runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v3"
@@ -114,7 +113,7 @@ func main() {
 	defer conn.Close()
 	// TODO: fix me
 	// HTTP  сервер не умеет обрабатывать grpc запросы, поэтому используем grpc-gateway
-	var gw = runtime.NewServeMux() // нужно сделать тег grpc_gateway_runtime сдесь в main.go
+	var gw = grpc_gateway_runtime.NewServeMux() // нужно сделать тег grpc_gateway_runtime сдесь в main.go
 	// grpc- gateway принимает клиент до grpc сервера и преобразует HTTP (REST) в grpc
 	// и перенаправляет через client
 	err = pb.RegisterBookAPIHandler(context.Background(), gw, conn)

@@ -1,7 +1,6 @@
 package api
 
 import (
-	pb "books1/internal/api/proto/v1"
 	"books1/internal/domain"
 	"books1/internal/logger"
 	"context"
