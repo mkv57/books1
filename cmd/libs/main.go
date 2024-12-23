@@ -123,7 +123,7 @@ func main() {
 	// web стучится по REST в gateway, который конвертирует из HTTP в grpc
 	// тот получил и отправил grpc-client и тот в grpc-server
 	gwServer := &http.Server{
-		Addr:    "0.0.0.0:8080",
+		Addr:    "0.0.0.0:8081",
 		Handler: gw,
 	}
 	/*
@@ -138,7 +138,7 @@ func main() {
 	//err = http.ListenAndServe("localhost:8080", r)
 	log2.Warn("сервер отключён")
 	if err1 != nil {
-		fmt.Println(555)
+		fmt.Println(err1)
 		log2.Debug("сервер нe запустился")
 	}
 

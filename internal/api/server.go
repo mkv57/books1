@@ -1,6 +1,7 @@
 package api
 
 import (
+	pb "books1/internal/api/proto/v1"
 	"books1/internal/domain"
 	"books1/internal/logger"
 	"context"
@@ -58,11 +59,12 @@ func (p Server) GetBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.AddBookResponse, error) {
-	_, found := logger.FromContext(ctx)
+	/*log, found := logger.FromContext(ctx)
 	if found == false {
 		return nil, errors.New("нет логера")
 	}
-
+	log.Info("сохраняем книгу")
+	*/
 	newBook := domain.Book{
 		Title: request.Title,
 		Year:  int(request.Year),
@@ -79,7 +81,6 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 		Year:  int32(result.Year),
 	}}, nil
 
-	//log.Info("сохраняем книгу")
 }
 
 /*
@@ -122,8 +123,46 @@ func (p Server) AddBook(w http.ResponseWriter, r *http.Request) {
 	log.Info("сохраняем книгу")
 } //
 */
-
+/*
 func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	ctx := r.Context()
+	query := r.URL.Query()
+	limit := query.Get("limit")
+
+	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
+	//fmt.Println(books)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if limit != "" {
+		limitNum, err := strconv.Atoi(limit)
+		if err != nil {
+			handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
+			return
+		}
+		fmt.Println(limitNum)
+	}
+
+	data, err := json.Marshal(books)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Write(data)
+
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+		return
+	}
+	log.Info("отправлен ответ")
+}
+*/
+func (p Server) AllBooks(ctx context.Context, request *pb.AllBooksRequest) (*pb.AllBooksResponse, error) {
 	w.Header().Set("Content-Type", "application/json")
 	ctx := r.Context()
 	query := r.URL.Query()
