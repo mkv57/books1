@@ -15,10 +15,58 @@ service BookAPI {
             post: "/book"
             body: "*"
         };
-    };
+    
+    }
+    rpc GetBook (GetBookRequest) returns (GetBookResponse){
+        option (google.api.http) = {
+            get: "/book"
+        };
+    }
+    rpc UpdateBook (UpdateBookRequest) returns (UpdateBookResponse) {
+        option (google.api.http) = {
+            put: "/book"
+            body: "*"
+        };    
+    }  
+    rpc DeleteBook (DeleteBookRequest) returns (DeleteBookResponse){
+        option (google.api.http) = {
+            delete: "/book"
+        };    
+    }      
+ }
+message DeleteBookRequest{
+    int64 id = 1;
+}
+message DeleteBookResponse{
+    int64 id = 1;
 }
 
-message AddBookRequest {
+message UpdateBookRequest{
+    int64 id = 1;
+    string title = 2;
+    int32 year = 3;
+}  
+message UpdateBookResponse{
+    Book book = 1;
+} 
+
+
+message GetBookRequest{
+    int64 id = 1;
+}
+
+message GetBookResponse{
+Book book = 1;
+}
+
+message Book1 {
+    int64 id = 1;
+    string title = 2;
+    int32 year = 3;
+}
+
+
+message AddBookRequest{
 
 string title = 1;
 int32 year = 2;

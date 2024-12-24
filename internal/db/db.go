@@ -15,32 +15,25 @@ func NewRepository(rawDB *sql.DB) *Repository {
 	return &Repository{db: rawDB}
 }
 
-/*
-
-
-
- */
-
 func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error) {
 	book1 := &domain.Book{}
-	query := "INSERT INTO books (title, year) VALUES ($1, $2) RETURNING title, year, id"
+	query := "INSERT INTO books (title, year) VALUES ($1, $2) RETURNING id, title, year"
 
-	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year).Scan(&book1.Title, &book1.Year, &book1.ID)
+	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year).Scan(&book1.ID, &book1.Title, &book1.Year)
 
 	if err != nil {
 		fmt.Println("error при добавлении книги", err)
 	}
-
 	return book1, nil
 }
 
 func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error) {
-
+	fmt.Println(id)
 	book := &domain.Book{}
 	query := "SELECT id, title, year FROM books WHERE id = $1"
 	err := d.db.QueryRowContext(ctx, query, id).Scan(&book.ID, &book.Title, &book.Year)
 	if err != nil {
-		fmt.Println("ERROR2")
+		fmt.Println("ERROR2", err)
 	}
 
 	return book, nil
