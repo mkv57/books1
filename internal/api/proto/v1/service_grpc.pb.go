@@ -23,6 +23,7 @@ const (
 	BookAPI_GetBook_FullMethodName    = "/api.proto.v1.BookAPI/GetBook"
 	BookAPI_UpdateBook_FullMethodName = "/api.proto.v1.BookAPI/UpdateBook"
 	BookAPI_DeleteBook_FullMethodName = "/api.proto.v1.BookAPI/DeleteBook"
+	BookAPI_AllBooks_FullMethodName   = "/api.proto.v1.BookAPI/AllBooks"
 )
 
 // BookAPIClient is the client API for BookAPI service.
@@ -33,6 +34,7 @@ type BookAPIClient interface {
 	GetBook(ctx context.Context, in *GetBookRequest, opts ...grpc.CallOption) (*GetBookResponse, error)
 	UpdateBook(ctx context.Context, in *UpdateBookRequest, opts ...grpc.CallOption) (*UpdateBookResponse, error)
 	DeleteBook(ctx context.Context, in *DeleteBookRequest, opts ...grpc.CallOption) (*DeleteBookResponse, error)
+	AllBooks(ctx context.Context, in *AllBooksRequest, opts ...grpc.CallOption) (*AllBooksResponse, error)
 }
 
 type bookAPIClient struct {
@@ -83,6 +85,16 @@ func (c *bookAPIClient) DeleteBook(ctx context.Context, in *DeleteBookRequest, o
 	return out, nil
 }
 
+func (c *bookAPIClient) AllBooks(ctx context.Context, in *AllBooksRequest, opts ...grpc.CallOption) (*AllBooksResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AllBooksResponse)
+	err := c.cc.Invoke(ctx, BookAPI_AllBooks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BookAPIServer is the server API for BookAPI service.
 // All implementations should embed UnimplementedBookAPIServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type BookAPIServer interface {
 	GetBook(context.Context, *GetBookRequest) (*GetBookResponse, error)
 	UpdateBook(context.Context, *UpdateBookRequest) (*UpdateBookResponse, error)
 	DeleteBook(context.Context, *DeleteBookRequest) (*DeleteBookResponse, error)
+	AllBooks(context.Context, *AllBooksRequest) (*AllBooksResponse, error)
 }
 
 // UnimplementedBookAPIServer should be embedded to have
@@ -111,6 +124,9 @@ func (UnimplementedBookAPIServer) UpdateBook(context.Context, *UpdateBookRequest
 }
 func (UnimplementedBookAPIServer) DeleteBook(context.Context, *DeleteBookRequest) (*DeleteBookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
+}
+func (UnimplementedBookAPIServer) AllBooks(context.Context, *AllBooksRequest) (*AllBooksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AllBooks not implemented")
 }
 func (UnimplementedBookAPIServer) testEmbeddedByValue() {}
 
@@ -204,6 +220,24 @@ func _BookAPI_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BookAPI_AllBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AllBooksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BookAPIServer).AllBooks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BookAPI_AllBooks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BookAPIServer).AllBooks(ctx, req.(*AllBooksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BookAPI_ServiceDesc is the grpc.ServiceDesc for BookAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +260,10 @@ var BookAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteBook",
 			Handler:    _BookAPI_DeleteBook_Handler,
+		},
+		{
+			MethodName: "AllBooks",
+			Handler:    _BookAPI_AllBooks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

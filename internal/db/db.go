@@ -28,7 +28,7 @@ func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.
 }
 
 func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error) {
-	fmt.Println(id)
+
 	book := &domain.Book{}
 	query := "SELECT id, title, year FROM books WHERE id = $1"
 	err := d.db.QueryRowContext(ctx, query, id).Scan(&book.ID, &book.Title, &book.Year)

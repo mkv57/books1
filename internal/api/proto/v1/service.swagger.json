@@ -135,6 +135,37 @@
           "BookAPI"
         ]
       }
+    },
+    "/books": {
+      "get": {
+        "operationId": "BookAPI_AllBooks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AllBooksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "BookAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -186,7 +217,43 @@
         }
       }
     },
+    "v1AllBooksResponse": {
+      "type": "object",
+      "properties": {
+        "book1": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Book1"
+          }
+        }
+      }
+    },
     "v1Book": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cteatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1Book1": {
       "type": "object",
       "properties": {
         "id": {

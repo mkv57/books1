@@ -32,8 +32,26 @@ service BookAPI {
         option (google.api.http) = {
             delete: "/book"
         };    
-    }      
+    } 
+    rpc AllBooks (AllBooksRequest) returns (AllBooksResponse){
+        option (google.api.http) = {
+            get: "/books"
+        };
+    }    
  }
+ message AllBooksRequest{
+    int64 limit = 1;
+ }
+ message AllBooksResponse{
+    repeated Book1 book1 = 1;
+ }
+ message Book1 {
+    int64 id = 1;
+    string title = 2;
+    int32 year = 3;
+    google.protobuf.Timestamp cteated_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
 message DeleteBookRequest{
     int64 id = 1;
 }
@@ -58,13 +76,6 @@ message GetBookRequest{
 message GetBookResponse{
 Book book = 1;
 }
-
-message Book1 {
-    int64 id = 1;
-    string title = 2;
-    int32 year = 3;
-}
-
 
 message AddBookRequest{
 

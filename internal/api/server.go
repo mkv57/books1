@@ -3,14 +3,8 @@ package api
 import (
 	pb "books1/internal/api/proto/v1"
 	"books1/internal/domain"
-	"books1/internal/logger"
 	"context"
-	"encoding/json"
 	"fmt"
-
-	"errors"
-	"net/http"
-	"strconv"
 )
 
 type Store interface {
@@ -31,7 +25,7 @@ func (p Server) GetBook(ctx context.Context, request *pb.GetBookRequest) (*pb.Ge
 	idint := uint(request.Id)
 	result, err := p.Database.GetBookFromDatabaseByRAWSql(ctx, uint(idint))
 	if err != nil {
-		fmt.Println("error10") //handleError(w, http.StatusInternalServerError, err)
+		fmt.Println("error10")
 	}
 	return &pb.GetBookResponse{Book: &pb.Book{
 		Id:    int64(result.ID),
@@ -61,83 +55,109 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 
 }
 
-func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	ctx := r.Context()
-	query := r.URL.Query()
-	limit := query.Get("limit")
-
-	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
-	//fmt.Println(books)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	if limit != "" {
-		limitNum, err := strconv.Atoi(limit)
-		if err != nil {
-			handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
-			return
-		}
-		fmt.Println(limitNum)
-	}
-
-	data, err := json.Marshal(books)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	w.Write(data)
-
-	log, found := logger.FromContext(ctx)
-	if found == false {
-		handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
-		return
-	}
-	log.Info("отправлен ответ")
-}
-
 /*
-func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBooksResponse, error) {
-
-		//ctx := r.Context()
-		//query := r.URL.Query()
-		//limit := query.Get("limit")
+	func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		ctx := r.Context()
+		query := r.URL.Query()
+		limit := query.Get("limit")
 
 		books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
 		//fmt.Println(books)
 		if err != nil {
-			//	handleError(w, http.StatusInternalServerError, err)
-			fmt.Println(err)
+			handleError(w, http.StatusInternalServerError, err)
+			return
 		}
-		return books, nil
-		//if limit != "" {
-		//	limitNum, err := strconv.Atoi(limit)
-		//	if err != nil {
-		//		handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
-		//		return
-		//	}
-		//	fmt.Println(limitNum)
-		//}
 
-		//data, err := json.Marshal(books)
-		//if err != nil {
-		//	handleError(w, http.StatusInternalServerError, err)
-		//	return
-		//}
+		if limit != "" {
+			limitNum, err := strconv.Atoi(limit)
+			if err != nil {
+				handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
+				return
+			}
+			fmt.Println(limitNum)
+		}
 
-		//w.Write(data)
+		data, err := json.Marshal(books)
+		if err != nil {
+			handleError(w, http.StatusInternalServerError, err)
+			return
+		}
 
-		//log, found := logger.FromContext(ctx)
-		//if found == false {
-		//	handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
-		//	return
-		//}
-		//log.Info("отправлен ответ")
+		w.Write(data)
+
+		log, found := logger.FromContext(ctx)
+		if found == false {
+			handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+			return
+		}
+		log.Info("отправлен ответ")
 	}
 */
+func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBooksResponse, error) {
+
+	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g := []*pb.Book1{}
+	n := &pb.Book1{}
+
+	for i := 0; i < len(books); i++ {
+
+		n = &pb.Book1{
+			Id:    int64(books[i].ID),
+			Title: books[i].Title,
+			Year:  int32(books[i].Year),
+		}
+		g = append(g, n)
+	}
+	return &pb.AllBooksResponse{Book1: g}, nil
+}
+
+/*
+books := []domain.Book{}
+
+	if err != nil {
+		fmt.Println("error3")
+	}
+	for rows.Next() {
+		book := &domain.Book{}
+		rows.Scan(&book.ID, &book.Title, &book.Year)
+		books = append(books, *book)
+	}
+*/
+//return &pb.AllBooksResponse{Book: &pb.Book{
+//	Id:    int64(books.ID),
+//	Title: books.Title,
+//	Year:  int32(books.Year),
+//}}, nil
+
+//if limit != "" {
+//	limitNum, err := strconv.Atoi(limit)
+//	if err != nil {
+//		handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
+//		return
+//	}
+//	fmt.Println(limitNum)
+//}
+
+//data, err := json.Marshal(books)
+//if err != nil {
+//	handleError(w, http.StatusInternalServerError, err)
+//	return
+//}
+
+//w.Write(data)
+
+//log, found := logger.FromContext(ctx)
+//if found == false {
+//	handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
+//	return
+//}
+//log.Info("отправлен ответ")
 
 func (p Server) UpdateBook(ctx context.Context, request *pb.UpdateBookRequest) (*pb.UpdateBookResponse, error) {
 
