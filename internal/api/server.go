@@ -16,7 +16,6 @@ type Store interface {
 }
 
 type Server struct {
-	//Database *db.Repository `json:"database"`
 	Database Store
 }
 
@@ -55,45 +54,6 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 
 }
 
-/*
-	func (p Server) AllBooks(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		ctx := r.Context()
-		query := r.URL.Query()
-		limit := query.Get("limit")
-
-		books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
-		//fmt.Println(books)
-		if err != nil {
-			handleError(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		if limit != "" {
-			limitNum, err := strconv.Atoi(limit)
-			if err != nil {
-				handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
-				return
-			}
-			fmt.Println(limitNum)
-		}
-
-		data, err := json.Marshal(books)
-		if err != nil {
-			handleError(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		w.Write(data)
-
-		log, found := logger.FromContext(ctx)
-		if found == false {
-			handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
-			return
-		}
-		log.Info("отправлен ответ")
-	}
-*/
 func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBooksResponse, error) {
 
 	books, err := p.Database.GetAllBookFromDatabaseByRAWSql(ctx)
@@ -102,10 +62,15 @@ func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBoo
 		fmt.Println(err)
 	}
 
+	a := int(len(books))
+	if r.Limit > 0 {
+		a = int(r.Limit)
+	}
+
 	g := []*pb.Book1{}
 	n := &pb.Book1{}
 
-	for i := 0; i < len(books); i++ {
+	for i := 0; i < a; i++ {
 
 		n = &pb.Book1{
 			Id:    int64(books[i].ID),
@@ -116,48 +81,6 @@ func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBoo
 	}
 	return &pb.AllBooksResponse{Book1: g}, nil
 }
-
-/*
-books := []domain.Book{}
-
-	if err != nil {
-		fmt.Println("error3")
-	}
-	for rows.Next() {
-		book := &domain.Book{}
-		rows.Scan(&book.ID, &book.Title, &book.Year)
-		books = append(books, *book)
-	}
-*/
-//return &pb.AllBooksResponse{Book: &pb.Book{
-//	Id:    int64(books.ID),
-//	Title: books.Title,
-//	Year:  int32(books.Year),
-//}}, nil
-
-//if limit != "" {
-//	limitNum, err := strconv.Atoi(limit)
-//	if err != nil {
-//		handleError(w, http.StatusBadRequest, errors.New("invalid limit parameter"))
-//		return
-//	}
-//	fmt.Println(limitNum)
-//}
-
-//data, err := json.Marshal(books)
-//if err != nil {
-//	handleError(w, http.StatusInternalServerError, err)
-//	return
-//}
-
-//w.Write(data)
-
-//log, found := logger.FromContext(ctx)
-//if found == false {
-//	handleError(w, http.StatusInternalServerError, errors.New("Проблемы у нас"))
-//	return
-//}
-//log.Info("отправлен ответ")
 
 func (p Server) UpdateBook(ctx context.Context, request *pb.UpdateBookRequest) (*pb.UpdateBookResponse, error) {
 
@@ -182,7 +105,7 @@ func (p Server) DeleteBook(ctx context.Context, request *pb.DeleteBookRequest) (
 
 	err := p.Database.DeleteBookFromDatabaseByRAWSql(ctx, idint)
 	if err != nil {
-		fmt.Println("проблема, книга не удалена") // handleError(w, http.StatusBadRequest, err)
+		fmt.Println("проблема, книга не удалена")
 
 	}
 	fmt.Println("книга удалена")

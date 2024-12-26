@@ -24,9 +24,11 @@ import (
 	"net/http"
 	"os"
 
+	//"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -94,6 +96,7 @@ func main() {
 
 	server := grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(validator.UnaryServerInterceptor()),
 	)
 	// здесь регестрируем хендеры для grpc
 	pb.RegisterBookAPIServer(server, &ourServer)

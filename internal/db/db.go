@@ -40,6 +40,7 @@ func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*
 }
 
 func (d Repository) GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error) {
+
 	books := []domain.Book{}
 	query := "SELECT id, title, year FROM books"
 	rows, err := d.db.QueryContext(ctx, query)

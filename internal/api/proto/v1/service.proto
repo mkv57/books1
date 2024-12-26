@@ -6,6 +6,7 @@ option go_package = ".;pb";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 // easyp generate
 
@@ -79,8 +80,8 @@ Book book = 1;
 
 message AddBookRequest{
 
-string title = 1;
-int32 year = 2;
+string title = 1 [(validate.rules).string = {min_len: 3}];
+int32 year = 2 [(validate.rules).int32 = {gte: 1} ];
 
 }
 

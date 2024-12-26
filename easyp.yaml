@@ -3,7 +3,7 @@ version: vlalpha
 deps: [
   "github.com/googleapis/googleapis",
   "github.com/grpc-ecosystem/grpc-gateway@v2.25.1",
-  #"github.com/bufbuild/protoc-gen-validate",
+  "github.com/bufbuild/protoc-gen-validate",
 ]
 
 # deps: [
@@ -43,3 +43,8 @@ generate:
     opts:
       simple_operation_ids: false
       generate_unbound_methods: false
+  - name: validate
+    out: .
+    opts:
+     lang: go
+     paths: source_relative
