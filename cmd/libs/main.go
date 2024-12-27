@@ -18,6 +18,7 @@ import (
 	"books1/internal/api"
 	pb "books1/internal/api/proto/v1"
 	"books1/internal/db"
+	"books1/internal/logger"
 
 	"fmt"
 	"log/slog"
@@ -28,6 +29,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 
 	"github.com/gorilla/mux"
@@ -51,7 +53,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var log2 = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	var loggerOur = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.Level(systemconfig.LogLevel),
 	}))
 
@@ -81,7 +83,7 @@ func main() {
 
 	repo := db.NewRepository(rawSQLConn)
 
-	r.Use(api.Log(log2))
+	r.Use(api.Log(loggerOur))
 
 	ourServer := api.Server{
 
@@ -97,6 +99,10 @@ func main() {
 	server := grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
 		grpc.UnaryInterceptor(validator.UnaryServerInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			loginterceptor(loggerOur),
+			logging.UnaryServerInterceptor(interceptorLogger(loggerOur)),
+		),
 	)
 	// здесь регестрируем хендеры для grpc
 	pb.RegisterBookAPIServer(server, &ourServer)
@@ -129,20 +135,29 @@ func main() {
 		Addr:    "0.0.0.0:8081",
 		Handler: gw,
 	}
-	/*
-		r.HandleFunc("/book", ourServer.GetBook).Methods(http.MethodGet)
-		r.HandleFunc("/book", ourServer.AddBook).Methods(http.MethodPost)
-		r.HandleFunc("/book", ourServer.DeleteBook).Methods(http.MethodDelete)
-		r.HandleFunc("/book", ourServer.UpdateBook).Methods(http.MethodPut)
-		r.HandleFunc("/books", ourServer.AllBooks).Methods(http.MethodGet)
-	*/
-	log2.Warn("сервер запущен")
+
+	loggerOur.Warn("сервер запущен")
 	err1 := gwServer.ListenAndServe()
 	//err = http.ListenAndServe("localhost:8080", r)
-	log2.Warn("сервер отключён")
+	loggerOur.Warn("сервер отключён")
 	if err1 != nil {
 		fmt.Println(err1)
-		log2.Debug("сервер нe запустился")
+		loggerOur.Debug("сервер нe запустился")
 	}
 
+}
+func interceptorLogger(l *slog.Logger) logging.Logger {
+	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
+		l.Log(ctx, slog.Level(lvl), msg, fields...)
+	})
+}
+
+func loginterceptor(loggerOur *slog.Logger) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, reg any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, er error) {
+		log1 := loggerOur.With(
+			slog.String("full_method", info.FullMethod),
+		)
+		ctx = logger.NewContext(ctx, log1)
+		return handler(ctx, reg)
+	}
 }

@@ -33,7 +33,7 @@ func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*
 	query := "SELECT id, title, year FROM books WHERE id = $1"
 	err := d.db.QueryRowContext(ctx, query, id).Scan(&book.ID, &book.Title, &book.Year)
 	if err != nil {
-		fmt.Println("ERROR2", err)
+		fmt.Println("такого ID нет", err)
 	}
 
 	return book, nil
