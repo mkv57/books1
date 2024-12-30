@@ -3,6 +3,7 @@ package api
 import (
 	pb "books1/internal/api/proto/v1"
 	"books1/internal/domain"
+	"books1/internal/logger"
 	"context"
 	"fmt"
 )
@@ -26,6 +27,14 @@ func (p Server) GetBook(ctx context.Context, request *pb.GetBookRequest) (*pb.Ge
 	if err != nil {
 		fmt.Println("error10")
 	}
+
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		log.Debug("Проблемы у нас")
+
+	}
+	log.Info("отправляем в ответ книгу")
+
 	return &pb.GetBookResponse{Book: &pb.Book{
 		Id:    int64(result.ID),
 		Title: result.Title,
@@ -45,7 +54,12 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("книга добавлена")
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		log.Debug("Проблемы у нас")
+
+	}
+	log.Info("добавили книгу")
 	return &pb.AddBookResponse{Book: &pb.Book{
 		Id:    int64(result.ID),
 		Title: result.Title,
@@ -79,6 +93,12 @@ func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBoo
 		}
 		g = append(g, n)
 	}
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		log.Debug("Проблемы у нас")
+
+	}
+	log.Info("отправляем в ответ книги")
 	return &pb.AllBooksResponse{Book1: g}, nil
 }
 
@@ -93,6 +113,12 @@ func (p Server) UpdateBook(ctx context.Context, request *pb.UpdateBookRequest) (
 	if err != nil {
 		fmt.Println("книга", request.Id, "обновлена")
 	}
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		log.Debug("Проблемы у нас")
+
+	}
+	log.Info("обновили данные книги")
 	return &pb.UpdateBookResponse{Book: &pb.Book{
 		Id:    int64(request.Id),
 		Title: request.Title,
@@ -108,7 +134,12 @@ func (p Server) DeleteBook(ctx context.Context, request *pb.DeleteBookRequest) (
 		fmt.Println("проблема, книга не удалена")
 
 	}
-	fmt.Println("книга удалена")
+	log, found := logger.FromContext(ctx)
+	if found == false {
+		log.Debug("Проблемы у нас")
+
+	}
+	log.Info("книга удалена")
 
 	return &pb.DeleteBookResponse{
 		Id: int64(request.Id),

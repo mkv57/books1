@@ -24,6 +24,7 @@ func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.
 	if err != nil {
 		fmt.Println("error при добавлении книги", err)
 	}
+
 	return book1, nil
 }
 
