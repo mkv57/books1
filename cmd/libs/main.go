@@ -25,14 +25,12 @@ import (
 	"net/http"
 	"os"
 
-	//"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 
-	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
@@ -69,7 +67,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	r := mux.NewRouter()
+	//r := mux.NewRouter()
 
 	m, err := migrate.New(
 		"file://../../migrate",
@@ -83,7 +81,7 @@ func main() {
 
 	repo := db.NewRepository(rawSQLConn)
 
-	r.Use(api.Log(loggerOur))
+	//r.Use(api.Log(loggerOur))
 
 	ourServer := api.Server{
 
