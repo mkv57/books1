@@ -5,7 +5,15 @@ import (
 	"books1/internal/domain"
 	"books1/internal/logger"
 	"context"
+	"errors"
 	"fmt"
+	"net"
+
+	"github.com/google/uuid"
+	"google.golang.org/grpc"
+
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 )
 
 type Store interface {
@@ -14,12 +22,83 @@ type Store interface {
 	GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error)
 	DeleteBookFromDatabaseByRAWSql(ctx context.Context, id uint) error
 	UpDateBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) error
+	// User logic
+	SaveUserToDatabase(ctx context.Context, user domain.User) (domain.User, error)
+	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
+	SaveSessionTodatabase(ctx context.Context, session domain.Session) error
 }
 
 type Server struct {
 	Database Store
 }
 
+// Login implements pb.BookAPIServer.
+var (
+	ErrInvalidPassword = errors.New("invalid password")
+)
+
+func (p *Server) Login(ctx context.Context, request *pb.LoginRequest) (*pb.LoginResponse, error) {
+	user, err := p.Database.GetUserByEmail(ctx, request.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user.Password != request.Password {
+		return nil, ErrInvalidPassword
+	}
+
+	ip, err := originFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	token := uuid.New().String()
+	session := domain.Session{
+		UserID:    user.ID,
+		Token:     token,
+		IP:        ip,
+		UserAgent: "", // TODO
+
+	}
+	err = p.Database.SaveSessionTodatabase(ctx, session)
+	if err != nil {
+		return nil, err
+	}
+	err = grpc.SendHeader(ctx, metadata.MD{"authorization": {token}})
+	if err != nil {
+		return nil, fmt.Errorf("error")
+	}
+	return &pb.LoginResponse{User: &pb.User{
+		Id:    int64(user.ID),
+		Email: user.Email,
+	}}, nil
+}
+
+// Функция достаёт IP клиента
+func originFromCtx(ctx context.Context) (string, error) {
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return "", fmt.Errorf("error")
+	}
+	p.Addr.String()
+
+	clientIP, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return "", fmt.Errorf("error")
+	}
+	return clientIP, nil
+}
+
+// Registration implements pb.BookAPIServer.
+func (p *Server) Registration(ctx context.Context, request *pb.RegistrationRequest) (*pb.RegistrationResponse, error) {
+	newUser := domain.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+	registeredUser, err := p.Database.SaveUserToDatabase(ctx, newUser)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.RegistrationResponse{Id: int64(registeredUser.ID)}, nil
+}
 func (p Server) GetBook(ctx context.Context, request *pb.GetBookRequest) (*pb.GetBookResponse, error) {
 
 	idint := uint(request.Id)

@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/auth": {
+      "post": {
+        "summary": "Login response returns auth token by name grpc-metadata-authorization.",
+        "operationId": "BookAPI_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BookAPI"
+        ]
+      }
+    },
     "/book": {
       "get": {
         "operationId": "BookAPI_GetBook",
@@ -166,6 +199,38 @@
           "BookAPI"
         ]
       }
+    },
+    "/user": {
+      "post": {
+        "operationId": "BookAPI_Registration",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RegistrationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegistrationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BookAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -294,6 +359,45 @@
         }
       }
     },
+    "v1LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "v1LoginResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User"
+        }
+      }
+    },
+    "v1RegistrationRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "v1RegistrationResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "v1UpdateBookRequest": {
       "type": "object",
       "properties": {
@@ -315,6 +419,18 @@
       "properties": {
         "book": {
           "$ref": "#/definitions/v1Book"
+        }
+      }
+    },
+    "v1User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "email": {
+          "type": "string"
         }
       }
     }
