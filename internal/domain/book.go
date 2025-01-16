@@ -8,4 +8,5 @@ type Book struct {
 	Year      int       `json:"year"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	UserID    int       `json:"user_id"`
 }

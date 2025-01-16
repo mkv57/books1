@@ -10,7 +10,8 @@ id serial PRIMARY KEY,
 title VARCHAR (50) UNIQUE NOT NULL,
 year INTEGER NOT NULL,
 created_at time,
-updated_at time
+updated_at time,
+//user_id int references users not null
 );
 CREATE TABLE session
 (

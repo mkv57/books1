@@ -39,7 +39,7 @@ service BookAPI {
             get: "/books"
         };
     } 
-    rpc Registration (RegistrationRequest) returns (RegistrationResponse){
+    rpc Registration (RegistrationRequest) returns (RegistrationResponse){  
         option (google.api.http) = {
             post: "/user"
             body: "*"

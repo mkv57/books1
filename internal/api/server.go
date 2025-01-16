@@ -10,6 +10,7 @@ import (
 	"net"
 
 	"github.com/google/uuid"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
 
 	"google.golang.org/grpc/metadata"
@@ -26,6 +27,7 @@ type Store interface {
 	SaveUserToDatabase(ctx context.Context, user domain.User) (domain.User, error)
 	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
 	SaveSessionTodatabase(ctx context.Context, session domain.Session) error
+	GetUserByToken(ctx context.Context, token string) (domain.User, error)
 }
 
 type Server struct {
@@ -38,7 +40,7 @@ var (
 )
 
 func (p *Server) Login(ctx context.Context, request *pb.LoginRequest) (*pb.LoginResponse, error) {
-	user, err := p.Database.GetUserByEmail(ctx, request.Email)
+	user, err := p.Database.GetUserByEmail(ctx, request.Email) // ищем данные user password  и id по email
 	if err != nil {
 		return nil, err
 	}
@@ -122,11 +124,23 @@ func (p Server) GetBook(ctx context.Context, request *pb.GetBookRequest) (*pb.Ge
 
 }
 
+const authScheme = "Bearer"
+
 func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.AddBookResponse, error) {
 
+	token, err := auth.AuthFromMD(ctx, authScheme)
+	if err != nil {
+		return nil, fmt.Errorf("")
+	}
+
+	user, err := p.Database.GetUserByToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
 	newBook := domain.Book{
-		Title: request.Title,
-		Year:  int(request.Year),
+		Title:  request.Title,
+		Year:   int(request.Year),
+		UserID: user.ID,
 	}
 
 	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook)
