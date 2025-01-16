@@ -79,22 +79,22 @@ func (d Repository) UpDateBookToDataBaseByRAWSql(ctx context.Context, book domai
 
 func (d Repository) SaveUserToDatabase(ctx context.Context, user domain.User) (domain.User, error) {
 
-	user1 := domain.User{}
-	query := "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING user_id, email, password"
-	err := d.db.QueryRowContext(ctx, query, user.Email, user.Password).Scan(&user1.ID, &user1.Email, &user1.Password)
+	user1 := &domain.User{}
+	query := "INSERT INTO users (password, email) VALUES ($1, $2) RETURNING email, password"
+	err := d.db.QueryRowContext(ctx, query, user.Password, user.Email).Scan(&user1.Email, &user1.Password)
 	if err != nil {
 		fmt.Println("error при добавлении user", err)
 	}
 
-	return user1, nil
+	return *user1, nil
 }
 
 func (d Repository) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
 
 	user := &domain.User{}
 
-	query := "SELEKT * FROM users WHERE email = $1"
-	err := d.db.QueryRowContext(ctx, query, email).Scan(&user.Password, &user.ID, &user.Email)
+	query := "SELECT * FROM users WHERE email = $1"
+	err := d.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Password, &user.Email)
 	if err != nil {
 		fmt.Println("такого email нет", err)
 	}
@@ -102,10 +102,10 @@ func (d Repository) GetUserByEmail(ctx context.Context, email string) (domain.Us
 }
 func (d Repository) SaveSessionTodatabase(ctx context.Context, session domain.Session) error {
 
-	//session1 := &domain.Session{}
-	query := "INSERT INTO session (user_id, token, ip, user_agent, created_at) VALUES (&1, $2, $3, $4, $5) RETURNING  id, user_id, token, ip, user_agent, created_at"
-	err := d.db.QueryRowContext(ctx, query, session.UserID, session.Token, session.IP, session.UserAgent, session.CreatedAt)
-	//.Scan(&session1.ID, &session1.UserID, &session1.Token, &session1.IP, &session1.UserAgent, &session1.CreatedAt)
+	session1 := &domain.Session{}
+	query := "INSERT INTO session (user_id, token, ip, user_agent, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING  id, user_id, token, ip, user_agent, created_at"
+	err := d.db.QueryRowContext(ctx, query, session.UserID, session.Token, session.IP, session.UserAgent, session.CreatedAt).
+		Scan(&session1.ID, &session1.UserID, &session1.Token, &session1.IP, &session1.UserAgent, &session1.CreatedAt)
 	if err != nil {
 		fmt.Println("error при добавлении session", err)
 	}

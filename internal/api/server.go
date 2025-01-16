@@ -130,11 +130,12 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 
 	token, err := auth.AuthFromMD(ctx, authScheme)
 	if err != nil {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("проблема")
 	}
 
 	user, err := p.Database.GetUserByToken(ctx, token)
 	if err != nil {
+		fmt.Println("проблема 1")
 		return nil, err
 	}
 	newBook := domain.Book{
