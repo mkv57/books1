@@ -1,9 +1,9 @@
 version: vlalpha
 
 deps: [
-  github.com/googleapis/googleapis,
-  github.com/grpc-ecosystem/grpc-gateway,
-  github.com/bufbuild/protoc-gen-validate
+  "github.com/googleapis/googleapis",
+  "github.com/grpc-ecosystem/grpc-gateway@v2.25.1",
+  "github.com/bufbuild/protoc-gen-validate",
 ]
 
 # deps: [
@@ -11,13 +11,21 @@ deps: [
 # ]
 # установить easyp
 # go install github.com/easyp-tech/easyp/cmd/easyp@latest 
+# echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+#  после команд закрывать терминал и открывать нозаново, потом вводить команду
 # команды 
 # easyp mod update
 # easyp generate
 
+# go install \gateway v0.0.0
+    # github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest \
+    # github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest \
+    # google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+    # google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 generate:
   plugins:
-  - name: go    
+  - name: go
     out: .
     opts:
       paths: source_relative
@@ -35,6 +43,8 @@ generate:
     opts:
       simple_operation_ids: false
       generate_unbound_methods: false
-
-
-
+  - name: validate
+    out: .
+    opts:
+     lang: go
+     paths: source_relative

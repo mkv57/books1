@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"books1/internal/logger"
 	"log/slog"
@@ -30,3 +31,4 @@ func Log(log *slog.Logger) mux.MiddlewareFunc {
 		})
 	}
 }
+*/
