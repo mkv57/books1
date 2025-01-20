@@ -18,7 +18,7 @@ import (
 )
 
 type Store interface {
-	SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error)
+	SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book, token string) (*domain.Book, error)
 	GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*domain.Book, error)
 	GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error)
 	DeleteBookFromDatabaseByRAWSql(ctx context.Context, id uint) error
@@ -144,7 +144,7 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 		UserID: user.ID,
 	}
 
-	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook)
+	result, err := p.Database.SaveBookToDataBaseByRAWSql(ctx, newBook, token)
 	if err != nil {
 		return nil, err
 	}

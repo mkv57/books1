@@ -15,11 +15,19 @@ func NewRepository(rawDB *sql.DB) *Repository {
 	return &Repository{db: rawDB}
 }
 
-func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book) (*domain.Book, error) {
-	book1 := &domain.Book{}
-	query := "INSERT INTO books (title, year) VALUES ($1, $2) RETURNING id, title, year"
+func (d Repository) SaveBookToDataBaseByRAWSql(ctx context.Context, book domain.Book, token string) (*domain.Book, error) {
 
-	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year).Scan(&book1.ID, &book1.Title, &book1.Year)
+	userId := "SELECT user_id FROM session WHERE token = $1"
+	var userId1 int
+	err1 := d.db.QueryRowContext(ctx, userId, token).Scan(&userId1)
+	fmt.Println(userId1)
+	if err1 != nil {
+		fmt.Println("error при добавлении книги 1", err1)
+	}
+	book1 := &domain.Book{}
+	query := "INSERT INTO books (title, year, user_id) VALUES ($1, $2, $3) RETURNING id, title, year"
+
+	err := d.db.QueryRowContext(ctx, query, book.Title, book.Year, userId1).Scan(&book1.ID, &book1.Title, &book1.Year)
 
 	if err != nil {
 		fmt.Println("error при добавлении книги", err)
@@ -103,7 +111,7 @@ func (d Repository) GetUserByEmail(ctx context.Context, email string) (domain.Us
 func (d Repository) SaveSessionTodatabase(ctx context.Context, session domain.Session) error {
 
 	session1 := &domain.Session{}
-	query := "INSERT INTO session (user_id, token, ip, user_agent, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING  id, user_id, token, ip, user_agent, created_at"
+	query := "INSERT INTO session (user_id, token, ip, user_agent, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING  id_session, user_id, token, ip, user_agent, created_at"
 	err := d.db.QueryRowContext(ctx, query, session.UserID, session.Token, session.IP, session.UserAgent, session.CreatedAt).
 		Scan(&session1.ID, &session1.UserID, &session1.Token, &session1.IP, &session1.UserAgent, &session1.CreatedAt)
 	if err != nil {

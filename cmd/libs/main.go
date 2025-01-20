@@ -9,7 +9,6 @@ import (
 	"log"
 	"net"
 
-	// grpc_gateway_runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	grpc_gateway_runtime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -62,22 +61,23 @@ func main() {
 	}
 	defer file.Close()
 
+	m, err := migrate.New(
+		"file://../../migrate", systemconfig.DSN)
+	if err != nil {
+
+		log.Fatal(err)
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		fmt.Println("миграция не прошла")
+		log.Fatal(err)
+	}
+
 	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	//r := mux.NewRouter()
-
-	m, err := migrate.New(
-		"file://../../migrate",
-		systemconfig.DSN)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal(err)
-	}
 
 	repo := db.NewRepository(rawSQLConn)
 
