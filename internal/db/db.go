@@ -88,8 +88,8 @@ func (d Repository) UpDateBookToDataBaseByRAWSql(ctx context.Context, book domai
 func (d Repository) SaveUserToDatabase(ctx context.Context, user domain.User) (domain.User, error) {
 
 	user1 := &domain.User{}
-	query := "INSERT INTO users (password, email) VALUES ($1, $2) RETURNING email, password"
-	err := d.db.QueryRowContext(ctx, query, user.Password, user.Email).Scan(&user1.Email, &user1.Password)
+	query := "INSERT INTO users (password, email) VALUES ($1, $2) RETURNING user_id, email, password"
+	err := d.db.QueryRowContext(ctx, query, user.Password, user.Email).Scan(&user1.ID, &user1.Email, &user1.Password)
 	if err != nil {
 		fmt.Println("error при добавлении user", err)
 	}

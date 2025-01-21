@@ -34,8 +34,10 @@ import (
 )
 
 type Config struct {
-	DSN      string `yaml:"dsn"`
-	LogLevel int    `yaml:"log_level"`
+	DSN          string `yaml:"dsn"`
+	LogLevel     int    `yaml:"log_level"`
+	Address_grps string `yaml:"address_grps"`
+	Address_http string `yaml:"address_http"`
 }
 
 func main() {
@@ -89,7 +91,7 @@ func main() {
 	}
 
 	// создаём структуру которая слушает порты для получениязапроса по grpc( и только)
-	ln, err := net.Listen("tcp", "localhost:8080")
+	ln, err := net.Listen("tcp", systemconfig.Address_grps)
 	if err != nil {
 		log.Fatal("net.Listen(): %v", err)
 	}
@@ -111,7 +113,7 @@ func main() {
 		}
 	}()
 	// здесь создаём конструкцию, которая умеет вызывать (grpc) методы
-	conn, err := grpc.NewClient("localhost:8080",
+	conn, err := grpc.NewClient(systemconfig.Address_grps,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -130,7 +132,7 @@ func main() {
 	// web стучится по REST в gateway, который конвертирует из HTTP в grpc
 	// тот получил и отправил grpc-client и тот в grpc-server
 	gwServer := &http.Server{
-		Addr:    "0.0.0.0:8081",
+		Addr:    systemconfig.Address_http,
 		Handler: gw,
 	}
 
