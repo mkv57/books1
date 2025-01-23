@@ -44,11 +44,11 @@ func (p *Server) Login(ctx context.Context, request *pb.LoginRequest) (*pb.Login
 	if err != nil {
 		return nil, err
 	}
-	if user.Password != request.Password {
+	if user.Password != request.Password { // проверяем полученный пароль
 		return nil, ErrInvalidPassword
 	}
 
-	ip, err := originFromCtx(ctx)
+	ip, err := originFromCtx(ctx) // получаем  IP адрес
 	if err != nil {
 		return nil, err
 	}
@@ -60,11 +60,11 @@ func (p *Server) Login(ctx context.Context, request *pb.LoginRequest) (*pb.Login
 		UserAgent: "", // TODO
 
 	}
-	err = p.Database.SaveSessionTodatabase(ctx, session)
+	err = p.Database.SaveSessionTodatabase(ctx, session) // отправляем данные сессии для сохранения в BD
 	if err != nil {
 		return nil, err
 	}
-	err = grpc.SendHeader(ctx, metadata.MD{"authorization": {token}})
+	err = grpc.SendHeader(ctx, metadata.MD{"authorization": {token}}) // отправляем токен в Header ответа
 	if err != nil {
 		return nil, fmt.Errorf("error")
 	}
