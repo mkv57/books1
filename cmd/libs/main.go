@@ -42,7 +42,7 @@ type Config struct {
 
 func main() {
 
-	yamlContent, err := os.ReadFile("../../config.yml")
+	yamlContent, err := os.ReadFile("./config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func main() {
 		Level: slog.Level(systemconfig.LogLevel),
 	}))
 
-	file, err := os.OpenFile("../../app.log", os.O_APPEND, 0666)
+	file, err := os.OpenFile("./app.log", os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -64,7 +64,7 @@ func main() {
 	defer file.Close()
 
 	m, err := migrate.New(
-		"file://../../migrate", systemconfig.DSN)
+		"file://migrate", systemconfig.DSN)
 	if err != nil {
 
 		log.Fatal(err)

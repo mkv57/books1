@@ -17,6 +17,18 @@ services:
       - postgres-data-books:/var/lib/postgresql/data
     restart: always
 
+
+  books1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: books1
+    restart: always
+    ports:
+      - 8080:8080
+      - 8081:8081
+
+
 volumes:
   postgres-data-books:
  
