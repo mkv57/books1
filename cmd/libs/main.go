@@ -42,50 +42,50 @@ type Config struct {
 
 func main() {
 
-	yamlContent, err := os.ReadFile("./config.yml")
+	yamlContent, err := os.ReadFile("./config.yml") // читаем файл config.yml и сохраняем в переменную yamlContent
 	if err != nil {
 		log.Fatal(err)
 	}
 	var systemconfig Config
-	err = yaml.Unmarshal(yamlContent, &systemconfig)
+	err = yaml.Unmarshal(yamlContent, &systemconfig) // декодировали данные из переменной yamlContent в переменную systemconfig
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var loggerOur = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.Level(systemconfig.LogLevel),
-	}))
-
-	file, err := os.OpenFile("./app.log", os.O_APPEND, 0666)
+	file, err := os.OpenFile("./app.log", os.O_APPEND, 0666) // Открываем файл app.log для записи туда логов
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer file.Close()
 
-	m, err := migrate.New(
+	var loggerOur = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{ // создаём переменную, для передачи логов в формате
+		Level: slog.Level(systemconfig.LogLevel), // (loggerOur.Warn("сервер запущен")) Если os.Stdout, то в терминал
+	})) // Если переменная file то в файл app.log
+
+	m, err := migrate.New( // сохраняем в переменную m данные из папки migrate
 		"file://migrate", systemconfig.DSN)
 	if err != nil {
 
 		log.Fatal(err)
 	}
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange { // отправляем запрос из переменной m в базу данных sql из папки migrate
 		fmt.Println("миграция не прошла")
 		log.Fatal(err)
 	}
 
-	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN)
+	rawSQLConn, err := sql.Open("postgres", systemconfig.DSN) // открываем доступ к базе данных postgreSQL
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	//r := mux.NewRouter()
 
-	repo := db.NewRepository(rawSQLConn)
+	repo := db.NewRepository(rawSQLConn) // зоздаём путь для передачи и получения данных из базы данных postgreSQL
 
 	//r.Use(api.Log(loggerOur))
 
-	ourServer := api.Server{
+	ourServer := api.Server{ // создаём связь(путь) передачи данных между обработчиками и базой данной postgreSQL
 
 		Database: repo,
 	}
