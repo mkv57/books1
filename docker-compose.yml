@@ -1,18 +1,17 @@
-#version: '1.22.10'
-
-
 # docker compose up
 services:
-
+# export POSTGRES_USER=mkv
   postgres1:
     container_name: container-pg1
     image: postgres:16
     ports:
       - "5435:5432"
     environment:
+     # POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_USER: mkv
       POSTGRES_PASSWORD: book_server
       POSTGRES_DB: book_database
+     
     volumes:
       - postgres-data-books:/var/lib/postgresql/data
     restart: always
@@ -23,6 +22,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: books1
+    volumes:
+     - "./config.yml:/config.yml"
     restart: always
     ports:
       - 8080:8080

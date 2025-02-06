@@ -27,8 +27,13 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # COPY --from=builder /etc/task/go-task /etc/task/go-task // если надо
 COPY --from=builder /my_proekt/libs /libs
 
-COPY --from=builder /my_proekt/config.yml ./config.yml
+#COPY --from=builder /my_proekt/config.yml ./config.yml
 COPY --from=builder /my_proekt/app.log ./app.log
 COPY --from=builder /my_proekt/migrate ./migrate
 
 ENTRYPOINT ["/libs"]  
+
+# docker build -t registry.academy.the-guild.tech/book_mkv:0.1.0 .
+# docker push registry.academy.the-guild.tech/book_mkv:0.1.0 
+# docker build -t <container_name>:<tag> . (с точкой в конце)
+# docker push <container_name>:<tag>        (без точки)
