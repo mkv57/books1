@@ -80,7 +80,7 @@ func originFromCtx(ctx context.Context) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("error")
 	}
-	p.Addr.String()
+	//p.Addr.String()
 
 	clientIP, _, err := net.SplitHostPort(p.Addr.String())
 	if err != nil {
@@ -110,7 +110,7 @@ func (p Server) GetBook(ctx context.Context, request *pb.GetBookRequest) (*pb.Ge
 	}
 
 	log, found := logger.FromContext(ctx)
-	if found == false {
+	if !found {
 		log.Debug("Проблемы у нас")
 
 	}
@@ -149,7 +149,7 @@ func (p Server) AddBook(ctx context.Context, request *pb.AddBookRequest) (*pb.Ad
 		return nil, err
 	}
 	log, found := logger.FromContext(ctx)
-	if found == false {
+	if !found {
 		log.Debug("Проблемы у нас")
 
 	}
@@ -176,11 +176,11 @@ func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBoo
 	}
 
 	g := []*pb.Book1{}
-	n := &pb.Book1{}
+	//n := &pb.Book1{}
 
 	for i := 0; i < a; i++ {
 
-		n = &pb.Book1{
+		n := &pb.Book1{
 			Id:    int64(books[i].ID),
 			Title: books[i].Title,
 			Year:  int32(books[i].Year),
@@ -188,7 +188,7 @@ func (p Server) AllBooks(ctx context.Context, r *pb.AllBooksRequest) (*pb.AllBoo
 		g = append(g, n)
 	}
 	log, found := logger.FromContext(ctx)
-	if found == false {
+	if !found {
 		log.Debug("Проблемы у нас")
 
 	}
@@ -208,7 +208,7 @@ func (p Server) UpdateBook(ctx context.Context, request *pb.UpdateBookRequest) (
 		fmt.Println("книга", request.Id, "обновлена")
 	}
 	log, found := logger.FromContext(ctx)
-	if found == false {
+	if !found {
 		log.Debug("Проблемы у нас")
 
 	}
@@ -229,7 +229,7 @@ func (p Server) DeleteBook(ctx context.Context, request *pb.DeleteBookRequest) (
 
 	}
 	log, found := logger.FromContext(ctx)
-	if found == false {
+	if !found {
 		log.Debug("Проблемы у нас")
 
 	}

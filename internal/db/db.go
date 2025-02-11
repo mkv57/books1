@@ -2,6 +2,7 @@ package db
 
 import (
 	"books1/internal/domain"
+	"books1/internal/logger"
 	"context"
 	"database/sql"
 	"fmt"
@@ -49,17 +50,27 @@ func (d Repository) GetBookFromDatabaseByRAWSql(ctx context.Context, id uint) (*
 }
 
 func (d Repository) GetAllBookFromDatabaseByRAWSql(ctx context.Context) ([]domain.Book, error) {
+	log, found := logger.FromContext(ctx)
+	if !found {
+		log.Debug("GetAllBookFromDatabaseByRAWSql_log")
+	}
 
 	books := []domain.Book{}
 	query := "SELECT id, title, year FROM books"
 	rows, err := d.db.QueryContext(ctx, query)
 	if err != nil {
-		fmt.Println("error3")
+		log.Debug("error3")
+	}
+	if rows.Err() != nil {
+		log.Debug("GetAllBookFromDatabaseByRAWSql")
 	}
 	for rows.Next() {
 		book := &domain.Book{}
-		rows.Scan(&book.ID, &book.Title, &book.Year)
+		err = rows.Scan(&book.ID, &book.Title, &book.Year)
 		books = append(books, *book)
+	}
+	if err != nil {
+		log.Debug("rows.Scan")
 	}
 
 	return books, nil
@@ -98,13 +109,16 @@ func (d Repository) SaveUserToDatabase(ctx context.Context, user domain.User) (d
 }
 
 func (d Repository) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	log, found := logger.FromContext(ctx)
+	if !found { //!= true {
+		log.Debug("GetUserByEmail_log")
+	}
 
 	user := &domain.User{}
-
 	query := "SELECT * FROM users WHERE email = $1"
 	err := d.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Password, &user.Email)
 	if err != nil {
-		fmt.Println("такого email нет", err)
+		log.Debug("такого email нет")
 	}
 	return *user, nil
 }

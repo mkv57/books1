@@ -40,6 +40,9 @@ type Config struct {
 	Address_http string `yaml:"address_http"`
 }
 
+// go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4 скачиваем проверку linters
+// golangci-lint run  запускаем проверку linters
+
 func main() {
 
 	yamlContent, err := os.ReadFile("./config.yml") // читаем файл config.yml и сохраняем в переменную yamlContent
@@ -93,7 +96,7 @@ func main() {
 	// создаём структуру которая слушает порты для получениязапроса по grpc( и только)
 	ln, err := net.Listen("tcp", systemconfig.Address_grps)
 	if err != nil {
-		log.Fatal("net.Listen(): %v", err)
+		log.Fatal("net.Listen():") // %v", err)
 	}
 
 	server := grpc.NewServer(
@@ -109,7 +112,7 @@ func main() {
 	// здесь запускаем только grpc сервер
 	go func() {
 		if err := server.Serve(ln); err != nil {
-			log.Fatal("server.Serve(): %v", err)
+			log.Fatal("server.Serve():")
 		}
 	}()
 	// здесь создаём конструкцию, которая умеет вызывать (grpc) методы
@@ -117,7 +120,7 @@ func main() {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Fatal("grpc.NewClient(): %v", err)
+		log.Fatal("grpc.NewClient():")
 	}
 	defer conn.Close()
 	// TODO: fix me
@@ -127,7 +130,7 @@ func main() {
 	// и перенаправляет через client
 	err = pb.RegisterBookAPIHandler(context.Background(), gw, conn)
 	if err != nil {
-		log.Fatal("RegisterServiceAPIHandler(): %v", err)
+		log.Fatal("RegisterServiceAPIHandler():")
 	}
 	// web стучится по REST в gateway, который конвертирует из HTTP в grpc
 	// тот получил и отправил grpc-client и тот в grpc-server

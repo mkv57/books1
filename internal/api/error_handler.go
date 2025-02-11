@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"encoding/json"
 	"fmt"
@@ -24,3 +25,4 @@ func handleError(w http.ResponseWriter, status int, err error) {
 		return
 	}
 }
+*/

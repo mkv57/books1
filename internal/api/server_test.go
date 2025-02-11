@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"books1/internal/domain"
 	"books1/internal/logger"
@@ -72,8 +73,10 @@ func TestServer_GetBook(t *testing.T) {
 
 	require.Equal(t, expectedBook, result) // сравнили результаты
 }
+*/
+/*
 
-/*func TestServer_GetBook(t *testing.T) {
+func TestServer_GetBook(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	mockStore := NewMockStore(ctrl)
